@@ -4,6 +4,7 @@
 #include <iostream>
 #include "../utils/type_traits.h"
 
+using std::ostream;
 using std::tuple;
 using std::apply;
 
@@ -34,13 +35,25 @@ public:
 
 	template<typename RHS>
 	auto operator*(const RHS& rhs) const;
+
+	friend ostream& operator<<(ostream& os, VectorExpression const& vector)
+	{
+		os << "(";
+		for (size_t i = 0; i < 2; ++i) {
+			os << vector[i] << ",";
+		}
+		os << vector[2];
+		os << ")\n";
+
+		return os;
+	}
 };
 
 template<typename CallableObject, typename... Args>
 template<typename RHS>
 auto VectorExpression<CallableObject,Args...>::operator*(const RHS& rhs) const
 {
-	static_assert(is_vector_or_expression_t<RHS>, "Can only dot by a vector or a vector expression");
+	static_assert(is_vector_or_expression_t<RHS>, "Can only dot a vector or a vector expression");
 	return (*this)[0] * rhs[0] + (*this)[1] * rhs[1] + (*this)[2] * rhs[2];
 }
 
