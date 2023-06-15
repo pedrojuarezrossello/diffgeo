@@ -66,7 +66,7 @@ public:
 			os << vector.vector_[i] << ",";
 		}
 		os << vector.vector_[2];
-		os << ")\n";
+		os << ")";
 
 		return os;
 	}
@@ -86,6 +86,14 @@ public:
 
 	template<typename RHS>
 	auto operator*(RHS&& rhs) const;
+
+	template<typename U,
+		std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
+	friend double distance(const Vector& vec1, const Vector<U>& vec2)
+	{
+		const Vector<T> diffVec = vec1 - vec2;
+		return diffVec.norm();
+	}
 
 	double norm() const;
 

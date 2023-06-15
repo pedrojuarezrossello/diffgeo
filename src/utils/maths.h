@@ -5,7 +5,7 @@
 template<typename T,typename U,
          std::enable_if_t<std::is_floating_point_v<T> && std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
 bool almostEqualRelativeAndAbs(T A, U B,
-    float maxDiff, float maxRelDiff = FLT_EPSILON)
+    double maxDiff, float maxRelDiff = FLT_EPSILON)
 {
     // Check if the numbers are really close -- needed
     // when comparing numbers near zero.

@@ -30,7 +30,8 @@ auto operator-(const LHS& lhs, const RHS& rhs)
 	return expression; //(N)RVO
 }
 
-template<typename T, typename CallableObject, typename... Args>
+template<typename T, typename CallableObject, typename... Args,
+	std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
 auto operator*(T lhs, const VectorExpression<CallableObject,Args...>& rhs)
 {
 	Vector<T> vec(rhs[0],rhs[1],rhs[2]);
@@ -38,7 +39,8 @@ auto operator*(T lhs, const VectorExpression<CallableObject,Args...>& rhs)
 	return lhs*vec;
 }
 
-template<typename T, typename CallableObject, typename... Args>
+template<typename T, typename CallableObject, typename... Args,
+	std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
 auto operator*(T lhs, VectorExpression<CallableObject, Args...>&& rhs)
 {
 	Vector<T> vec(rhs[0], rhs[1], rhs[2]);
