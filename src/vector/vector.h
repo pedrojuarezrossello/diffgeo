@@ -20,7 +20,7 @@ class Vector
 
 public:
 
-	Vector() : vector_{0,0,0} {}
+	Vector() : vector_{0.0,0.0,0.0} {}
 
 	explicit Vector(vector<T>& v) : vector_(v) {}
 
@@ -79,6 +79,14 @@ public:
 			 rhs.vector_[i] *= lhs;
 		 }
 		 return rhs;
+	 }
+
+	 template<typename U,
+		 std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
+	 friend auto operator*(U lhs, const Vector& rhs)
+	 {
+		 Vector<T> scaledVector(rhs.vector_[0] * lhs, rhs.vector_[1] * lhs, rhs.vector_[2] * lhs);
+		 return scaledVector;
 	 }
 
 	template<typename RHS>
@@ -151,10 +159,8 @@ public:
 			isZero(vec1.vector_[1] * vec2.vector_[0] - vec1.vector_[0] * vec2.vector_[1]) &&
 			isZero(vec1.vector_[2] * vec2.vector_[1] - vec1.vector_[1] * vec2.vector_[2]));
 	}
-
-	template<typename U,
-		std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr >
-	bool equals(const Vector<U>& vec)
+	
+	bool operator==(const Vector& vec)
 	{
 		return almostEqualRelativeAndAbs(this->vector_[0], vec.vector_[0], 1.0e-6) &&
 			almostEqualRelativeAndAbs(this->vector_[1], vec.vector_[1], 1.0e-6) &&
@@ -165,7 +171,7 @@ public:
 template<typename T>
 double Vector<T>::norm() const
 {
-	return sqrt(pow(static_cast<double>(vector_[0]), 2) + pow(static_cast<double>(vector_[1]), 2) + pow(static_cast<double>(vector_[2]), 2));
+	return sqrt(vector_[0] * vector_[0] + vector_[1] * vector_[1] + vector_[2] * vector_[2]);
 }
 
 template<typename T>

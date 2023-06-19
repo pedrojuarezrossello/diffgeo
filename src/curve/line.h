@@ -12,9 +12,33 @@ class Line
 
 public:
 
-    //constructors
+    //constructors and equals
+    Line() = default;
+
     Line(const Vector<U>& point, const Vector<T>& direction)
 						: direction_(direction), point_(point)
+    {
+        direction_.normalise();
+    }
+
+    template<typename CallableObject, typename ... Args>
+    Line(const Vector<U>& point, const VectorExpression<CallableObject,Args...>& direction)
+        : direction_(direction), point_(point)
+    {
+        direction_.normalise();
+    }
+
+    template<typename CallableObject, typename ... Args>
+    Line(const VectorExpression<CallableObject, Args...>& point, const Vector<U>& direction)
+        : direction_(direction), point_(point)
+    {
+        direction_.normalise();
+    }
+
+    template<typename CallableObject1, typename ... Args1,
+	typename CallableObject2, typename ...Args2>
+    Line(const VectorExpression<CallableObject1, Args1...>& point, const VectorExpression<CallableObject2, Args2...>& direction)
+        : direction_(direction), point_(point)
     {
         direction_.normalise();
     }
@@ -23,6 +47,11 @@ public:
 						: direction_(pos_direction ? (point_b-point_a):(point_a-point_b)), point_(point_a)
     {
         direction_.normalise();
+    }
+
+    bool operator==(const Line& rhs)
+    {
+        return direction_ == rhs.direction_ && point_ == rhs.point_;
     }
 
     //getters
@@ -47,16 +76,26 @@ public:
         std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
     auto at(V x)
     {
-        auto newPoint = point_ + x * direction_;
+        Vector<T> newPoint = point_ + x * direction_;
         return newPoint; //(N)RVO
     }
+
+    template<typename V,
+        std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+	auto at(V x) const
+    {
+        Vector<T> newPoint = point_ + x * direction_;
+        return newPoint; //(N)RVO
+    }
+
 
     //check for inclusion of a point 
     template<typename V,
         std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
     bool isInLine(const Vector<V>& vec)
     {
-        return areParallel(vec - point_, direction_);
+        auto pointToPoint(Vector<T>(vec - point_));
+        return areParallel(direction_, pointToPoint);
     }
 
     //parallel lines
@@ -94,9 +133,9 @@ public:
     }
 
     //distance between point and line
-    template<typename U,
-        std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
-    double distanceFrom(const Vector<U>& point)
+    template<typename V,
+        std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+    double distanceFrom(const Vector<V>& point)
     {
         auto closest(closestPoint(point));
         return distance(closest, point);
@@ -125,6 +164,25 @@ public:
     {
         Line<V, T> parallel(point, direction_);
         return parallel; //(N)RVO
+    }
+
+    //angle between two lines
+    template<typename V, typename W,
+        std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
+    friend double angle(const Line& line1, const Line<V, W>& line2)
+    {
+        return angle(line1.direction_, line2.direction_);
+    }
+
+    //do two lines intersect?
+    template<typename V, typename W,
+        std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
+    bool intersects(const Line<V, W>& line)
+    {
+        if (areParallel(*this, line) && !*this == line) return false;
+            //two lines contained in the same plane
+    	return isZero(cross_product(direction_, line.direction_) * (point_ - line.point_));
+        
     }
 };
 
