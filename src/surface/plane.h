@@ -89,9 +89,9 @@ public:
         return normal_;
     }
 
-    Vector<T>& getDirection()
+    Vector<T>& getNormal()
     {
-        return const_cast<int&>(const_cast<const Plane*>(this)->getNormal());
+        return const_cast<Vector<T>&>(const_cast<const Plane*>(this)->getNormal());
     }
 
     //print util

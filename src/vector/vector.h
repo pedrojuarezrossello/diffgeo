@@ -133,11 +133,12 @@ public:
 		}
 	}
 
-	Vector perpendicular()
+	Vector perpendicular() const
 	{
 		Vector perpendicular(copysign(this->vector_[2], this->vector_[0]),
 			copysign(this->vector_[2], this->vector_[1]),
 			-copysign(abs(this->vector_[0]) + abs(this->vector_[1]), this->vector_[2]));
+
 		perpendicular.normalise();
 
 		return perpendicular; //(N)RVO

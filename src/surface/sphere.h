@@ -37,6 +37,17 @@ public:
 		return os;
 	}
 
+	//theta varies from 0 to pi and phi varies from 0 to 2pi
+	Vector<T> at(T theta, T phi)
+	{
+		Vector<T> pointOnSphere(centre_[0] + radius_ * sin(theta) * cos(phi),
+			centre_[1] + radius_ * sin(theta) * sin(phi),
+			centre_[2] + radius_ * cos(theta));
+
+		return pointOnSphere;
+
+	}
+
 	//check if a point is on the sphere
 	template<typename V,
 		std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
