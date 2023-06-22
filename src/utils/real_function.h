@@ -3,22 +3,29 @@
 #include <type_traits>
 #include <functional>
 
-template<typename T, 
-	std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
-struct Function 
-{
-	using Funct = auto (double) -> double;
+namespace dg {
 
-	Function(std::function<Funct> func) : underlying_function(func) {}
+	namespace math {
 
-	std::function<T(T)> underlying_function;
-	T operator()(T var) 
-	{
-		return underlying_function(var);
-	}
+		template<typename T,
+			std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
+		struct Function
+		{
+			using Funct = auto (double) -> double;
 
-};
+			Function(std::function<Funct> func) : underlying_function(func) {}
 
+			std::function<T(T)> underlying_function;
+			T operator()(T var)
+			{
+				return underlying_function(var);
+			}
+
+		};
+
+	} //namespace math
+
+} //namespace dg
 
 
 

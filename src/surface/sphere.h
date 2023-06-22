@@ -3,64 +3,72 @@
 #include <type_traits>
 #include "../vector/vector.h"
 
+namespace dg {
 
-template<typename T,
-         std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
-class Sphere
-{
-	Vector<T> centre_;
-	T radius_;
+	namespace surf {
 
-public:
+		template<typename T,
+			std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
+		class Sphere
+		{
+			dg::vector::Vector<T> centre_;
+			T radius_;
 
-	//constructors & equality
-	Sphere(const Vector<T>& centre, T radius)
-		: centre_(centre), radius_(radius) {}
+		public:
 
-	Sphere() = default;
+			//constructors & equality
+			Sphere(const dg::vector::Vector<T>& centre, T radius)
+				: centre_(centre), radius_(radius) {}
 
-	Sphere(T a, T b, T c, T radius)
-		: centre_(a, b, c), radius_(radius){}
+			Sphere() = default;
 
-	template<typename CallableObject, typename ... Args>
-	Sphere(const VectorExpression<CallableObject, Args...>& rhs, T radius) : centre_(rhs), radius_(radius) {}
+			Sphere(T a, T b, T c, T radius)
+				: centre_(a, b, c), radius_(radius) {}
 
-	bool operator==(const Sphere& rhs)
-	{
-		return (centre_ == rhs.centre_) && almostEqualRelativeAndAbs(radius_, rhs.radius_, 1.0e-6);
-	}
+			template<typename CallableObject, typename ... Args>
+			Sphere(const dg::vector::VectorExpression<CallableObject, Args...>& rhs, T radius) : centre_(rhs), radius_(radius) {}
 
-	//print util
-	friend ostream& operator<<(ostream& os, Sphere const& sphere)
-	{
-		os << "||x-" << sphere.centre_ << "|| = " << sphere.radius_;
-		return os;
-	}
+			bool operator==(const Sphere& rhs)
+			{
+				return (centre_ == rhs.centre_) && dg::math::almostEqualRelativeAndAbs(radius_, rhs.radius_, 1.0e-6);
+			}
 
-	//theta varies from 0 to pi and phi varies from 0 to 2pi
-	Vector<T> at(T theta, T phi)
-	{
-		Vector<T> pointOnSphere(centre_[0] + radius_ * sin(theta) * cos(phi),
-			centre_[1] + radius_ * sin(theta) * sin(phi),
-			centre_[2] + radius_ * cos(theta));
+			//print util
+			friend std::ostream& operator<<(std::ostream& os, Sphere const& sphere)
+			{
+				os << "||x-" << sphere.centre_ << "|| = " << sphere.radius_;
+				return os;
+			}
 
-		return pointOnSphere;
+			//theta varies from 0 to pi and phi varies from 0 to 2pi
+			dg::vector::Vector<T> at(T theta, T phi)
+			{
+				std::vector::Vector<T> pointOnSphere(centre_[0] + radius_ * sin(theta) * cos(phi),
+					centre_[1] + radius_ * sin(theta) * sin(phi),
+					centre_[2] + radius_ * cos(theta));
 
-	}
+				return pointOnSphere;
 
-	//check if a point is on the sphere
-	template<typename V,
-		std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
-	bool isOnSphere(const Vector<V>& point)
-	{
-		return almostEqualRelativeAndAbs(radius_, distance(centre_, point));
-	}
+			}
 
-	//surface area
-	double area()
-	{
-		return 4 * M_PI * radius_ * radius_;
-	}
-};
+			//check if a point is on the sphere
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			bool isOnSphere(const dg::vector::Vector<V>& point)
+			{
+				return dg::math::almostEqualRelativeAndAbs(radius_, distance(centre_, point));
+			}
+
+			//surface area
+			double area()
+			{
+				return 4 * dg::math::PI * radius_ * radius_;
+			}
+		};
+
+	} //namespace surf
+
+} //namespace dg
+
 #endif //!SPHERE_H
 
