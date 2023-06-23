@@ -11,7 +11,6 @@ namespace dg {
         class Circumference
         {
             T radius_;
-            dg::vector::Vector<T> centre_;
             dg::surf::Plane<U, V> plane_;
 
         public:
@@ -19,32 +18,28 @@ namespace dg {
             //constructor & equality
             Circumference() = default;
 
-            Circumference(const T& radius, const dg::vector::Vector<T>& centre, const dg::surf::Plane<U, V>& plane)
-                : radius_(radius), centre_(centre), plane_(plane) {}
-
-            template<typename CallableObject, typename ... Args>
-            Circumference(const T& radius, const dg::vector::VectorExpression<CallableObject, Args...> centre, const dg::surf::Plane<U, V>& plane)
-                : radius_(radius), centre_(centre), plane_(plane) {}
+            Circumference(const T& radius, const dg::surf::Plane<U, V>& plane)
+                : radius_(radius), plane_(plane) {}
 
             bool operator==(const Circumference& other) const
             {
-                return dg::math::almostEqualRelativeAndAbs(radius_, other.radius_, 1.0e-6) && centre_ == other.centre_ && plane_ = other.plane_;
+                return dg::math::almostEqualRelativeAndAbs(radius_, other.radius_, 1.0e-6) && plane_ = other.plane_;
             }
 
             //getters 
             const T& getRadius() const { return radius_; }
-            const dg::vector::Vector<T>& getCentre() const { return centre_; }
-            const dg::plane::Plane<U, V>& getPlane() const { return plane_; }
+            const dg::vector::Vector<V>& getCentre() const { return plane_.getPoint(); }
+            const dg::surf::Plane<U, V>& getPlane() const { return plane_; }
 
             //point
             dg::vector::Vector<T> at(T theta)
             {
-                const Vector<U> normal(plane_.getNormal());
-                const Vector<U> plane_vector1(normal.perpendicular());
-                Vector<U> plane_vector2(cross_product(normal, plane_vector1));
+                const dg::vector::Vector<U> normal(plane_.getNormal());
+                const  dg::vector::Vector<U> plane_vector1(normal.perpendicular());
+                dg::vector::Vector<U> plane_vector2(dg::vector::cross_product(normal, plane_vector1));
                 plane_vector2.normalise();
 
-                Vector<T> point(centre_ + radius_ * sin(theta) * plane_vector1 + radius_ * cos(theta) * plane_vector2);
+                dg::vector::Vector<T> point(plane_.getPoint() + radius_ * sin(theta) * plane_vector1 + radius_ * cos(theta) * plane_vector2);
                 return point;
             }
 

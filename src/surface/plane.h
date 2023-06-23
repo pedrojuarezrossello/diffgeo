@@ -48,12 +48,13 @@ namespace dg {
             Plane(const dg::curve::Line<T, V>& line1, const dg::curve::Line<U, W>& line2)
                 : normal_(dg::vector::Vector<T>()), point_(dg::vector::Vector<U>())
             {
+                using namespace dg::curve;
                 if (line1.intersects(line2))
                 {
                     normal_ = dg::vector::cross_product(line1.getDirection(), line2.getDirection);  normal_.normalise();
                     point_ = line1.at(0.0);
                 }
-                else if (dg::curve::areParallel(line1, line2))
+                else if (areParallel(line1, line2))
                 {
                     normal_ = dg::vector::cross_product(line1.getDirection(), line1.at(0.0) - line2.at(0.0)); normal_.normalise();
                     point_ = line1.at(0.0);
@@ -88,15 +89,9 @@ namespace dg {
             }
 
             //getters
-            const dg::vector::Vector<T>& getNormal() const
-            {
-                return normal_;
-            }
+            const dg::vector::Vector<T>& getNormal() const { return normal_; }
 
-            dg::vector::Vector<T>& getNormal()
-            {
-                return const_cast<Vector<T>&>(const_cast<const Plane*>(this)->getNormal());
-            }
+            const dg::vector::Vector<T>& getPoint() const { return point_; }
 
             //print util
             friend std::ostream& operator<<(std::ostream& os, Plane const& plane)
@@ -128,7 +123,7 @@ namespace dg {
                 std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
             bool isOnPlane(const dg::vector::Vector<V>& point)
             {
-                return dg::math::isZero(normal_ * point - point_);
+                return dg::math::isZero(normal_ * (point - point_));
             }
 
             //is a line on the plane?
@@ -160,15 +155,34 @@ namespace dg {
             }
 
             //distance
-            template<typename V,
-                std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
-            double distanceFrom(const dg::vector::Vector<V>& point)
+            template<typename VectorType,
+                std::enable_if_t<dg::vector::is_vector_or_expression_t<VectorType>, std::nullptr_t> = nullptr>
+            double distanceFrom(const VectorType& point) const
             {
-                return point * normal_;
+                return fabs((point-point_) * normal_);
             }
 
-            //TODO line & plane
+            template<typename VectorType,
+                std::enable_if_t<dg::vector::is_vector_or_expression_t<VectorType>, std::nullptr_t> = nullptr>
+            double signedDistanceFrom(const VectorType& point) const
+            {
+                return (point - point_) * normal_;
+            }
 
+            template<typename V, typename W,
+                std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
+            double distance(const dg::curve::Line<V, W>& line) 
+            {
+                return areParallel(*this, line) ? this->distanceFrom(line.at(0)) : 0.0;
+            }
+
+            template<typename V, typename W,
+                std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
+                double distance(const Plane<V, W>& plane)
+            {
+                return areParallel(*this, plane) ? this->distanceFrom(plane.getPoint()) : 0.0;
+            }
+    
             //parallel
             template<typename V, typename W,
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
@@ -203,7 +217,7 @@ namespace dg {
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
             bool intersects(const dg::curve::Line<V, W>& line)
             {
-                return !dg::curve::areParallel(*this, line);
+                return !areParallel(*this, line);
             }
 
             template<typename V, typename W,

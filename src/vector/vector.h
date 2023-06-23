@@ -74,7 +74,7 @@ namespace dg {
 
 			template<typename U,
 				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
-			friend auto&& operator*(U lhs, Vector& rhs)
+			friend auto operator*(U lhs, Vector& rhs)
 			{
 				for (size_t i = 0; i < 3; i++) {
 					rhs.vector_[i] *= lhs;
@@ -157,11 +157,11 @@ namespace dg {
 			friend double angle(const Vector& vec1, const Vector<U>& vec2)
 			{
 				if (dg::math::isZero(vec1.norm()) || dg::math::isZero(vec2.norm())) throw std::exception("Vectors can't be null");
-				return atan2(cross_product(vec1, vec2).norm(), vec1 * vec2);
+				return atan2(cross_product(vec1, vec2).norm(), vec1 * vec2)+dg::math::PI;
 			}
 
 			template<typename U,
-				std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
+				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
 			friend bool areParallel(const Vector& vec1, const Vector<U>& vec2)
 			{
 				return (dg::math::isZero(vec1.vector_[2] * vec2.vector_[0] - vec1.vector_[0] * vec2.vector_[2]) &&

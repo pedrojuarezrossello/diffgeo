@@ -1,7 +1,9 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 #include <type_traits>
-#include "../vector/vector.h"
+#include "plane.h"
+#include "../curve/circumference.h"
+#include <optional>
 
 namespace dg {
 
@@ -13,6 +15,34 @@ namespace dg {
 		{
 			dg::vector::Vector<T> centre_;
 			T radius_;
+
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			bool isInternalTangent_(const Sphere<V>& sphere) const 
+			{
+				auto dist{ distance(centre_, sphere.centre_) };
+				return dg::math::almostEqualRelativeAndAbs(dist + std::min(radius_, sphere.radius_), std::max(radius_, sphere.radius_), 1.0e-6);
+			}
+
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			bool isExternalTangent_(const Sphere<V>& sphere) const 
+			{
+				auto dist{ distance(centre_, sphere.centre_) };
+				return dg::math::almostEqualRelativeAndAbs(dist, radius_ + sphere.radius_, 1.0e-6);
+			}
+
+			template<typename V,
+			std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			Plane<V, V> intersectionPlane_(const Sphere<V>& sphere) const
+			{
+				auto d{ distance(centre_, sphere.centre_) };
+				auto h{ 0.5 + (radius_ * radius_ - sphere.radius_ * sphere.radius_) / (2.0 * d * d) };
+				dg::vector::Vector<V> centreCircle(centre_ + h * (sphere.centre_ - centre_));
+				dg::vector::Vector<V> normal(sphere.centre_ - centre_);
+				dg::surf::Plane<V, V> planeCircle(normal, centreCircle);
+				return planeCircle;
+			}
 
 		public:
 
@@ -43,7 +73,7 @@ namespace dg {
 			//theta varies from 0 to pi and phi varies from 0 to 2pi
 			dg::vector::Vector<T> at(T theta, T phi)
 			{
-				std::vector::Vector<T> pointOnSphere(centre_[0] + radius_ * sin(theta) * cos(phi),
+				dg::vector::Vector<T> pointOnSphere(centre_[0] + radius_ * sin(theta) * cos(phi),
 					centre_[1] + radius_ * sin(theta) * sin(phi),
 					centre_[2] + radius_ * cos(theta));
 
@@ -63,6 +93,106 @@ namespace dg {
 			double area()
 			{
 				return 4 * dg::math::PI * radius_ * radius_;
+			}
+
+			//intersection with plane
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			bool hasIntersection(const Plane<V, U>& plane) const
+			{
+				auto signedDistance = plane.signedDistanceFrom(centre_);
+				return fabs(signedDistance) < radius_;
+			}
+
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			bool isTangent(const Plane<V, U>& plane) const 
+			{
+				return dg::math::almostEqualRelativeAndAbs(radius_, fabs(plane.signedDistanceFrom(centre_)), 1.0e-6);
+			}
+
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			std::optional<dg::curve::Circumference<T,V,U>> intersectionCircle(const Plane<V, U>& plane) const
+			{
+				std::optional<dg::curve::Circumference<T,V,U>> intersectionCircle;
+				if (has_intersection(plane)) {
+					auto signedDistance = plane.signedDistanceFrom(centre_);
+					intersectionCircle = dg::curve::Circumference<T, V, U>(
+						sqrt(radius_ * radius_ - signedDistance * signedDistance),
+						Plane<V, U>(plane.getNormal(), dg::vector::Vector<U>(centre_ + signedDistance * plane.getNormal()))
+						);
+				}
+				return intersectionCircle;
+			}
+
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			std::optional<dg::vector::Vector<T>> tangent(const Plane<V, U>& plane) const
+			{
+				dg::vector::Vector<T> tangentPoint;
+				if (isTangent(plane)) {
+					dg::vector::Vector<V> normal(plane.getNormal());
+					normal = ((angle(centre_, normal) < dg::math::PI) ? -1.0 : 1.0) * normal;
+					tangentPoint = dg::vector::Vector<T>(centre_ + radius_ * normal);
+				}
+				return tangentPoint;
+			}
+
+			//intersection with other sphere
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			bool hasIntersection(const Sphere<V>& sphere) const 
+			{
+				auto dist{ distance(centre_, sphere.centre_) };
+				return (dist < radius_ + sphere.radius_) && (std::min(radius_, sphere.radius_) + dist > std::max(radius_, sphere.radius_));
+			}
+
+			template<typename V, 
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			bool isTangent(const Sphere<V>& sphere) const
+			{
+				return isInternalTangent_<V>(sphere) || isExternalTangent_<V>(sphere);
+			}
+
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			std::optional<dg::curve::Circumference<T, V, V>> intersectionCircle(const Sphere<V>& sphere) const
+			{
+				std::optional<dg::curve::Circumference<T, V, V>> intersectionCircle;
+				if (hasIntersection(sphere))
+				{
+					auto d{ distance(centre_, sphere.centre_) };
+					auto h{ 0.5 + (radius_ * radius_ - sphere.radius_ * sphere.radius_) / (2.0 * d * d) };
+					auto radiusCircle{ sqrt(radius_ * radius_ - h * h * d * d) };
+					intersectionCircle = dg::curve::Circumference<T, V, V>(radiusCircle, intersectionPlane_(sphere));
+				}
+				return intersectionCircle;
+			}
+
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			std::optional<Plane<V,V>> intersectionPlane(const Sphere<V>& sphere) const
+			{
+				std::optional<Plane< V, V>> intersectionPlane;
+				if (hasIntersection(sphere))
+				{
+					intersectionPlane = intersectionPlane_(sphere);
+				}
+				return intersectionPlane;
+
+			}
+
+			template<typename V, 
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			std::optional<dg::vector::Vector<T>> tangent(const Sphere<V>& sphere) const
+			{
+				dg::vector::Vector<T> tangentPoint;
+				if (isTangent(sphere)) {
+					auto dist{ distance(centre_,sphere.centre_) };
+					tangentPoint = dg::vector::Vector(centre_ + (radius_ / dist) * (sphere.centre_ - centre_));
+				}
+				return tangentPoint;
 			}
 		};
 

@@ -98,8 +98,6 @@ namespace dg {
                 std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
             bool isInLine(const dg::vector::Vector<V>& vec)
             {
-                using namespace dg::vector;
-
                 auto pointToPoint(dg::vector::Vector<T>(vec - point_));
                 return areParallel(direction_, pointToPoint);
             }
@@ -109,8 +107,6 @@ namespace dg {
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
             friend bool areParallel(const Line& line1, const Line<V, W>& line2)
             {
-                using namespace dg::vector;
-
                 return areParallel(line1.direction_, line2.direction_);
             }
 
@@ -119,7 +115,6 @@ namespace dg {
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
             friend double distance(const Line& line1, const Line<V, W>& line2)
             {
-                using namespace dg::vector;
                 if (!areParallel(line1, line2))
                 {
                     auto normalVector(dg::vector::cross_product(line1.direction_, line2.direction_));
@@ -180,7 +175,6 @@ namespace dg {
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
             friend double angle(const Line& line1, const Line<V, W>& line2)
             {
-                using namespace dg::vector;
                 return angle(line1.direction_, line2.direction_);
             }
 
