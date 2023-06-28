@@ -1,6 +1,7 @@
 #ifndef TYPE_TRAITS_H
 #define TYPE_TRAITS_H
 #include <type_traits>
+#include <boost/math/differentiation/autodiff.hpp>
 
 namespace dg {
 
@@ -54,7 +55,21 @@ namespace dg {
 		template<typename T>
 		constexpr bool is_vector_v = is_vector<std::remove_cv_t < std::remove_reference_t<T>>>::value;
 
+
 	} //namespace vector
+
+	namespace math {
+
+		template<typename T
+			std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+		struct number_helper {
+			using namespace boost::math::differentiation::autodiff_v1;
+			using type = boost::math::differentiation::autodiff_v1::autodiff_fvar<T, 3>;
+		};
+
+		template< typename T>
+		using num = typename number_helper<T>::type;
+	}
 
 } //namespace dg
 

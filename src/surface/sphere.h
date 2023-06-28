@@ -16,6 +16,7 @@ namespace dg {
 			dg::vector::Vector<T> centre_;
 			T radius_;
 
+			//intersection and tangent helper methods
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
 			bool isInternalTangent_(const Sphere<V>& sphere) const 
@@ -44,6 +45,15 @@ namespace dg {
 				return planeCircle;
 			}
 
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			double computeHeightIntersection_(const Plane<U, V>& plane)
+			{
+				dg::curve::Circumference<T, V, U> circle(intersectionCircle(plane).value());
+				auto centreCircle(circle.getCentre());
+				return radius_ - distance(centreCircle, centre_);
+			}
+
 		public:
 
 			//constructors & equality
@@ -61,6 +71,22 @@ namespace dg {
 			bool operator==(const Sphere& rhs)
 			{
 				return (centre_ == rhs.centre_) && dg::math::almostEqualRelativeAndAbs(radius_, rhs.radius_, 1.0e-6);
+			}
+
+			//getters 
+			const dg::vector::Vector<T>& getCentre() const
+			{
+				return centre_;
+			}
+			
+			T getRadius() const
+			{
+				return radius_;
+			}
+
+			T getDiameter() const
+			{
+				return 2 * radius_;
 			}
 
 			//print util
@@ -95,6 +121,52 @@ namespace dg {
 				return 4 * dg::math::PI * radius_ * radius_;
 			}
 
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			double sphericalCapArea(V height) 
+			{
+				return 2.0 * dg::math::PI * radius_ * height;
+			}
+
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			double sphericalCapArea(const Plane<U,V>& plane)
+			{
+				auto height{ computeHeightIntersection_(plane)};
+				return sphericalCapArea(height);
+				
+			}
+
+			//enclosed volume
+			double volume() 
+			{
+				return 4.0 * dg::math::PI * radius_ * radius_ * radius_ / 3.0;
+			}
+
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			double sphericalCapVolume(V height)
+			{
+				return dg::math::PI * height * height * (3.0 * radius_ - height) / 3.0;
+			}
+
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			double sphericalCapVolume(const Plane<U, V>& plane) //will throw exception if no intersection
+			{
+				auto height{ computeHeightIntersection_(plane)};
+				return sphericalCapVolume(height);
+
+			}
+
+			//antipodal point
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+			dg::vector::Vector<V> antipodal(const dg::vector::Vector<V>& point) //assumes point is on the sphere
+			{
+				dg::vector::Vector<V> antipodal(2.0 * centre_ - point);
+				return antipodal;
+			}
 			//intersection with plane
 			template<typename V, typename U,
 				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
@@ -116,7 +188,7 @@ namespace dg {
 			std::optional<dg::curve::Circumference<T,V,U>> intersectionCircle(const Plane<V, U>& plane) const
 			{
 				std::optional<dg::curve::Circumference<T,V,U>> intersectionCircle;
-				if (has_intersection(plane)) {
+				if (hasIntersection(plane)) {
 					auto signedDistance = plane.signedDistanceFrom(centre_);
 					intersectionCircle = dg::curve::Circumference<T, V, U>(
 						sqrt(radius_ * radius_ - signedDistance * signedDistance),
@@ -193,6 +265,27 @@ namespace dg {
 					tangentPoint = dg::vector::Vector(centre_ + (radius_ / dist) * (sphere.centre_ - centre_));
 				}
 				return tangentPoint;
+			}
+
+			//great circle
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			dg::curve::Circumference<T, V, U> greatCircle(V theta, U phi) 
+			{
+				dg::vector::Vector<T> vectorAlongPlane(sin(theta) * cos(phi),
+					sin(theta) * sin(phi),
+					cos(phi));
+				Plane<T, T> planeGreatCircle(vectorAlongPlane.perpendicular(), centre_);
+				dg::curve::Circumference<T, V, U> geodesic(greatCircle(planeGreatCircle));
+				return geodesic;
+			}
+
+			template<typename V, typename U,
+				std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
+			dg::curve::Circumference<T, V, U> greatCircle(const Plane<U, V>& plane) 
+			{
+				dg::curve::Circumference<T, V, U> geodesic(radius_, plane);
+				return geodesic; 
 			}
 		};
 

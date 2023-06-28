@@ -65,10 +65,10 @@ namespace dg {
 
 		template<typename T, typename LHS, typename RHS,
 			std::enable_if_t<is_vector_or_expression_t<RHS>&& is_vector_or_expression_t<LHS> && std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
-		Vector<T> midPoint(const LHS& lhs, const RHS& rhs)
+		Vector<T> interpolate(const LHS& lhs, const RHS& rhs, T param)
 		{
-			Vector<T> mid(0.5 * (lhs + rhs));
-			return mid;
+			Vector<T> interpolationPoint(param* lhs + (1-param)*rhs);
+			return interpolationPoint;
 		}
 
 	} //namespace vector

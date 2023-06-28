@@ -27,10 +27,11 @@ namespace dg {
             }
 
             //getters 
-            const T& getRadius() const { return radius_; }
+            T getRadius() const { return radius_; }
+            T getDiameter() const { return 2 * radius_; }
             const dg::vector::Vector<V>& getCentre() const { return plane_.getPoint(); }
             const dg::surf::Plane<U, V>& getPlane() const { return plane_; }
-
+            
             //point
             dg::vector::Vector<T> at(T theta)
             {
@@ -50,11 +51,5 @@ namespace dg {
     } //namespace curve
 
 } //namespace dg
-
-
-
-
-
-
 
 #endif //!CIRCUMFERENCE_H
