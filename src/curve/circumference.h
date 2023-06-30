@@ -46,6 +46,9 @@ namespace dg {
 
             //length
             T length() { return 2 * dg::math::PI * radius_; }
+
+            //curvature
+            T curvature() { return 1.0 / radius_; }
         };
 
     } //namespace curve

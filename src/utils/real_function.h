@@ -17,7 +17,7 @@ namespace dg {
 
 			template<int Order, typename U,
 				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
-			auto find_derivatives_helper_(U value)
+			auto find_derivatives_helper_(U value) const
 			{
 				auto const epsilonedValue = boost::math::differentiation::make_fvar<U, Order>(value);
 				auto derivatives = underlying_function(epsilonedValue);
@@ -38,7 +38,7 @@ namespace dg {
 
 			template<int Order, typename U,
 				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
-			U derivative(U var)
+			U derivative(U var) const
 			{
 				auto derivatives = find_derivatives_helper_<Order>(var);
 				return derivatives.derivative(Order);
