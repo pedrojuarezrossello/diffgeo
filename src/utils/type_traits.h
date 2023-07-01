@@ -54,14 +54,16 @@ namespace dg {
 
 	namespace math {
 
-		template<typename T,
-			std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
+		template<typename T>
 		struct number_helper {
 			using type = boost::math::differentiation::autodiff_v1::autodiff_fvar<T, 3>;
 		};
 
 		template< typename T>
 		using num = typename number_helper<T>::type;
+
+		template<typename T>
+		using nums = num<num<T>>;
 
 		template <typename T>
 		struct is_autodiff_compatible
