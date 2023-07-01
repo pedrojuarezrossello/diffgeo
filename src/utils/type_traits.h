@@ -13,12 +13,6 @@ namespace dg {
 		template <typename T>
 		class Vector;
 
-		template<class T>
-		struct remove_cvref
-		{
-			typedef std::remove_cv_t<std::remove_reference_t<T>> type;
-		};
-
 		template <typename T>
 		struct is_vector_or_expression
 		{
@@ -68,6 +62,21 @@ namespace dg {
 
 		template< typename T>
 		using num = typename number_helper<T>::type;
+
+		template <typename T>
+		struct is_autodiff_compatible
+		{
+			static constexpr bool value = false;
+		};
+
+		/*template<typename T>
+		struct is_autodiff_compatible<typename num<T>>
+		{
+			static constexpr bool value = true;
+		};
+
+		template<typename U>
+		constexpr bool is_autodiff_compatible_v = is_autodiff_compatible<std::remove_cv_t < std::remove_reference_t<U>>>::value;*/
 	}
 
 } //namespace dg

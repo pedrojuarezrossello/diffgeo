@@ -2,6 +2,8 @@
 #define MATHS_H
 #include <cfloat>
 #include <cmath>
+#include <functional>
+#include "../utils/real_function.h"
 
 namespace dg {
     namespace math {
@@ -41,6 +43,26 @@ namespace dg {
         auto signOf(T num)
         {
             return (num >= 0) ? "+" : "";
+        }
+
+        template <typename T, typename Functor> 
+        auto compose(const dg::math::Function<T>& f, const Functor& g) 
+        {
+            dg::math::Function<T> compose_([f, g](T x) {
+                return f(g(x));
+                });
+
+            return compose_;
+        }
+
+        template <typename T, typename Functor>
+        auto compose(const dg::math::Function<T>& f, Functor&& g)
+        {
+            dg::math::Function<T> compose_([f, g](T x) {
+                return f(std::forward<Functor>(g)(x));
+                });
+
+            return compose_;
         }
 
     } //namespace math

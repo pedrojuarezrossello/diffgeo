@@ -1,73 +1,32 @@
 #ifndef CURVE_H
 #define CURVE_H
 #include <type_traits>
+#include <boost/math/quadrature/gauss.hpp>
+#include "../curve/curve_interface.h"
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
 #include "../utils/operations.h"
+#include "../utils/maths.h"
 
 namespace dg {
 
 	namespace curve {
 
 		template<typename T>
-		class Curve
+		class RegularCurve : public CurveInterface<RegularCurve<T>,T>
 		{
-			dg::math::Function<T> X_;
-			dg::math::Function<T> Y_;
-			dg::math::Function<T> Z_;
-
-			template<int Order, typename V,
-				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			dg::vector::Vector<V> derivative_(V var) const
-			{
-				dg::vector::Vector<V> componentwiseDerivative(
-					X_.derivative<Order>(var),
-					Y_.derivative<Order>(var),
-					Z_.derivative<Order>(var)
-				);
-
-				return componentwiseDerivative;
-			}
-
+		
 		public:
-
-			//constructor
-
-			Curve() = default;
-
-			Curve(const dg::math::Function<T>& X, const dg::math::Function<T>& Y, const dg::math::Function<T>& Z)
-				: X_(X), Y_(Y), Z_(Z) {}
-
-			//evaluation
-
-			template<typename V,
-				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			dg::vector::Vector<V> operator()(V var) 
-			{
-				dg::vector::Vector<V> evaluation(X_(var), Y_(var), Z_(var));
-				return evaluation;
-			}
-
-			//derivative function
-
-			template<int Order, typename V,
-				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			std::function<dg::vector::Vector<V>(V)> derivative() const
-			{
-				auto derivativeLambda = [this](V var) {
-					return this->derivative_<Order>(var);
-				};
-
-				return derivativeLambda;
-			}
+			
+			using CurveInterface<RegularCurve<T>, T>::CurveInterface;
 
 			//curvature (pointwise)
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			V curvature(V var) 
+			V curvature_(V var) 
 			{
-				auto firstDerivative(derivative_<1>(var));
-				auto crossWithSecondDerivative(dg::vector::cross_product(derivative_<2>(var), firstDerivative));
+				auto firstDerivative(this->derivative_<1>(var));
+				auto crossWithSecondDerivative(dg::vector::cross_product(this->derivative_<2>(var), firstDerivative));
 				auto firstDerivativeNorm{ firstDerivative.norm() };
 				return crossWithSecondDerivative.norm() / (firstDerivativeNorm * firstDerivativeNorm * firstDerivativeNorm);
 
@@ -76,13 +35,59 @@ namespace dg {
 			//torsion (pointwise)
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			V torsion(V var)
+			V torsion_(V var)
 			{
-				auto firstDerivative(derivative_<1>(var));
-				auto secondDerivative(derivative_<2>(var));
+				auto firstDerivative(this->derivative_<1>(var));
+				auto secondDerivative(this->derivative_<2>(var));
 				auto crossDerivatives(dg::vector::cross_product(secondDerivative,firstDerivative));
 				auto crossNorm{ crossDerivatives.norm() };
-				return (crossDerivatives * derivative_<3>(var)) / (crossNorm * crossNorm);
+				return (crossDerivatives * this->derivative_<3>(var)) / (crossNorm * crossNorm);
+			}
+
+			//length
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			V length_(V a, V b)
+			{
+				auto normFunction = [this](auto x) {
+					using std::sqrt;
+					return sqrt(this->X_.derivative<1>(x) * this->X_.derivative<1>(x)
+						+ this->Y_.derivative<1>(x) * this->Y_.derivative<1>(x)
+						+ this->Z_.derivative<1>(x) * this->Z_.derivative<1>(x));
+				};
+
+				return boost::math::quadrature::gauss<V, 7>::integrate(normFunction, a, b);
+			}
+
+			//unit tangent vector
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			dg::vector::Vector<V> tangentVector_(V var)
+			{
+				dg::vector::Vector<V> firstDerivative(this->derivative_<1>(var));
+				firstDerivative.normalise();
+				return firstDerivative;
+			}
+
+			//reparametrise
+			template<typename Functor>
+			void reparametrise(Functor&& reparametrisation)
+			{
+				this->X_ = dg::math::compose<T>(this->X_, std::forward<Functor>(reparametrisation));
+				this->Y_ = dg::math::compose<T>(this->Y_, std::forward<Functor>(reparametrisation));
+				this->Z_ = dg::math::compose<T>(this->Z_, std::forward<Functor>(reparametrisation));
+			}
+
+			//total curvature
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			V totalCurvature(V startingPoint, V period) 
+			{
+				auto curvatureFunction = [startingPoint, period](auto x) {
+					return curvature_(x);
+				};
+
+				return boost::math::quadrature::gauss<V, 7>::integrate(curvatureFunction, startingPoint, startingPoint+period);
 			}
 
 		};
