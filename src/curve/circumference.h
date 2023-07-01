@@ -49,6 +49,10 @@ namespace dg {
 
             //curvature
             T curvature() { return 1.0 / radius_; }
+
+            //torsion
+            T torsion() { return 0.0; }
+
         };
 
     } //namespace curve

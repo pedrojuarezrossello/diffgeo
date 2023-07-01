@@ -13,7 +13,7 @@ namespace dg {
 		{
 			using Funct = auto (T) -> T;
 
-			std::function<T(T)> underlying_function;
+			std::function<Funct> underlying_function;
 
 			template<int Order, typename U,
 				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
