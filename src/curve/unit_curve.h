@@ -2,15 +2,18 @@
 #define UNIT_CURVE_H
 #include <type_traits>
 #include "../curve/curve_interface.h"
-#include "../curve/curve.h"
+//#include "../curve/curve.h"
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
 #include "../utils/operations.h"
-#include <iostream>
+#include "../surface/plane.h"
 
 namespace dg {
 
 	namespace curve {
+
+		template <typename T>
+		class RegularCurve;
 
 		template<typename T>
 		class UnitCurve : public CurveInterface<UnitCurve<T>,T>
@@ -19,6 +22,8 @@ namespace dg {
 		public:
 
 			using CurveInterface<UnitCurve<T>, T>::CurveInterface;
+
+			UnitCurve(const RegularCurve<T>& curve) : CurveInterface<UnitCurve<T>, T>(curve) {}
 
 			//curvature (pointwise)
 			template<typename V,
@@ -71,6 +76,41 @@ namespace dg {
 				return normal;
 			}
 
+			//binormal normal
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			dg::vector::Vector<V> binormal(V var)
+			{
+				dg::vector::Vector<V> binormalVec(dg::vector::cross_product(tangentVector_(var), principalNormal(var)));
+				return binormalVec;
+			}
+
+			//osculating plane
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			dg::surf::Plane<V, V> osculatingPlane(V var)
+			{
+				dg::surf::Plane<V, V> osculating(tangentVector_(var), principalNormal(var), this->operator()(var));
+				return osculating;
+			}
+			
+			//rectifying plane
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			dg::surf::Plane<V, V> rectifyingPlane(V var)
+			{
+				dg::surf::Plane<V, V> rectifying(binormal(var), tangentVector_(var), this->operator()(var));
+				return rectifying;
+			}
+
+			//normal plane
+			template<typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			dg::surf::Plane<V, V> normalPlane(V var)
+			{
+				dg::surf::Plane<V, V> normal(principalNormal(var), binormal(var), this->operator()(var));
+				return normal;
+			}
 			
 		};
 

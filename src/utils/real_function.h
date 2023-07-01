@@ -24,20 +24,11 @@ namespace dg {
 				return derivatives;
 			}
 
-			
-
 		public:
 
-			Function(std::function<Funct> func) : underlying_function(func) {}
+			Function() {}
 
-			//?
-			template<typename U,
-				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr>
-			auto extractFunction() const
-			{
-				auto underlying = [*this](auto x) {return this->operator()(x).derivative(0); };
-				return underlying;
-			}
+			Function(std::function<Funct> func) : underlying_function(func) {}
 
 			template<typename U>
 			U operator()(U var) 

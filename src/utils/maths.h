@@ -59,7 +59,7 @@ namespace dg {
         auto compose(const dg::math::Function<T>& f, Functor&& g)
         {
             dg::math::Function<T> compose_([f, g](T x) {
-                return f(std::forward<Functor>(g)(x));
+                return f(g(x));
                 });
 
             return compose_;

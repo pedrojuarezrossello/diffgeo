@@ -8,6 +8,9 @@ namespace dg {
 
 	namespace curve {
 
+		template <typename T>
+		class RegularCurve;
+
 		template<typename CurveImpl, typename T>
 		class CurveInterface
 		{
@@ -30,33 +33,6 @@ namespace dg {
 				return componentwiseDerivative;
 			}
 
-			//unit tangent derivative function
-			template<typename V,
-				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			auto unitTangentDerivative_(const dg::math::Function<T>& component, V var) const
-			{
-				auto normFunction = [this](auto x) {
-					using std::sqrt;
-					return sqrt(this->X_.derivative<1>(x) * this->X_.derivative<1>(x)
-						+ this->Y_.derivative<1>(x) * this->Y_.derivative<1>(x)
-						+ this->Z_.derivative<1>(x) * this->Z_.derivative<1>(x));
-				};
-
-				auto derivativeComponent = [&component](auto x) {
-					return component.derivative<1>(x);
-				};
-
-				auto componentwiseUnitTangent = [&normFunction, &derivativeComponent](auto x)
-				{
-					return derivativeComponent(x) / normFunction(x);
-				};
-
-				auto const epsilonedValue = boost::math::differentiation::make_fvar<V, 1>(var);
-				auto derivatives = componentwiseUnitTangent(epsilonedValue);
-				return derivatives;
-
-			}
-
 			CurveInterface() {}
 
 		public:
@@ -66,8 +42,9 @@ namespace dg {
 			CurveInterface(const dg::math::Function<T>& X, const dg::math::Function<T>& Y, const dg::math::Function<T>& Z)
 				: X_(X), Y_(Y), Z_(Z) {}
 
+			CurveInterface(const RegularCurve<T>& curve) : X_(std::move(curve.getX())), Y_(std::move(curve.getY())), Z_(std::move(curve.getZ())) {}
+			
 			//evaluation
-
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
 			dg::vector::Vector<V> operator()(V var)

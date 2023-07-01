@@ -1,12 +1,14 @@
 #ifndef CURVE_H
 #define CURVE_H
 #include <type_traits>
+#include <memory>
 #include <boost/math/quadrature/gauss.hpp>
 #include "../curve/curve_interface.h"
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
 #include "../utils/operations.h"
 #include "../utils/maths.h"
+#include "../curve/unit_curve.h"
 
 namespace dg {
 
@@ -15,10 +17,14 @@ namespace dg {
 		template<typename T>
 		class RegularCurve : public CurveInterface<RegularCurve<T>,T>
 		{
-		
+	
 		public:
 			
 			using CurveInterface<RegularCurve<T>, T>::CurveInterface;
+
+			auto getX() const { return this->X_; }
+			auto getY() const { return this->Y_; }
+			auto getZ() const { return this->Z_; }
 
 			//curvature (pointwise)
 			template<typename V,
@@ -78,7 +84,15 @@ namespace dg {
 				this->Z_ = dg::math::compose<T>(this->Z_, std::forward<Functor>(reparametrisation));
 			}
 
-			//total curvature
+			//unit speed parametrisation
+			template<typename Functor>
+			std::unique_ptr<UnitCurve<T>> unitSpeedParametrisation(Functor&& param)
+			{
+				reparametrise(std::forward<Functor>(param));
+				return std::make_unique<UnitCurve<T>>(*this);
+			}
+
+			//total curvature -- needs closed
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
 			V totalCurvature(V startingPoint, V period) 
@@ -89,10 +103,9 @@ namespace dg {
 
 				return boost::math::quadrature::gauss<V, 7>::integrate(curvatureFunction, startingPoint, startingPoint+period);
 			}
-
 		};
 
 	} //namespace curve
 
 } //namespace dg
-#endif //!CURVE_HB
+#endif //!CURVE_H
