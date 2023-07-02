@@ -6,6 +6,7 @@
 #include "../utils/real_function.h"
 
 namespace dg {
+
     namespace math {
 
         constexpr auto PI = 3.14159265358979323846;
@@ -35,7 +36,7 @@ namespace dg {
             std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
         bool isZero(T a)
         {
-            return almostEqualRelativeAndAbs(a, 0.0, 1.0e-6);
+            return almostEqualRelativeAndAbs(a, 0.0, 1.0e-14);
         }
 
         template<typename T,
@@ -66,6 +67,33 @@ namespace dg {
         }
 
     } //namespace math
+
+    namespace surf
+    {
+        enum class Point
+        {
+            elliptic,
+            hyperbolic,
+            parabolic,
+            planar,
+            umbilic
+        };
+
+        constexpr const char* TypeToString(Point point) 
+        {
+            switch (point)
+            {
+            case Point::elliptic: return "Elliptic";
+            case Point::parabolic: return "Parabolic";
+            case Point::hyperbolic: return "Hyperbolic";
+            case Point::planar: return "Planar";
+            case Point::umbilic: return "Umbilic";
+            default: return "Non-computable";
+            }
+        }
+
+    } //namespace surf
+
 } //namespace dg
 
 #endif //!MATHS_H
