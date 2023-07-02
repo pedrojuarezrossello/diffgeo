@@ -16,9 +16,9 @@ namespace dg {
 		{
 		protected:
 
-			dg::math::Function<T> X_;
-			dg::math::Function<T> Y_;
-			dg::math::Function<T> Z_;
+			dg::math::Function<T,T> X_;
+			dg::math::Function<T,T> Y_;
+			dg::math::Function<T,T> Z_;
 
 			template<int Order, typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
@@ -39,7 +39,7 @@ namespace dg {
 
 			//constructor
 
-			CurveInterface(const dg::math::Function<T>& X, const dg::math::Function<T>& Y, const dg::math::Function<T>& Z)
+			CurveInterface(const dg::math::Function<T,T>& X, const dg::math::Function<T,T>& Y, const dg::math::Function<T,T>& Z)
 				: X_(X), Y_(Y), Z_(Z) {}
 
 			CurveInterface(const RegularCurve<T>& curve) : X_(std::move(curve.getX())), Y_(std::move(curve.getY())), Z_(std::move(curve.getZ())) {}
@@ -88,7 +88,7 @@ namespace dg {
 
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			V unitTangent(V var)
+			dg::vector::Vector<V> unitTangent(V var)
 			{
 				return static_cast<CurveImpl*>(this)->unitTangent_(var);
 			}

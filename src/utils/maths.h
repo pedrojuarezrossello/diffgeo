@@ -46,9 +46,9 @@ namespace dg {
         }
 
         template <typename T, typename Functor> 
-        auto compose(const dg::math::Function<T>& f, const Functor& g) 
+        auto compose(const dg::math::Function<T,T>& f, const Functor& g) 
         {
-            dg::math::Function<T> compose_([f, g](T x) {
+            dg::math::Function<T,T> compose_([f, g](T x) {
                 return f(g(x));
                 });
 
@@ -56,9 +56,9 @@ namespace dg {
         }
 
         template <typename T, typename Functor>
-        auto compose(const dg::math::Function<T>& f, Functor&& g)
+        auto compose(const dg::math::Function<T,T>& f, Functor&& g)
         {
-            dg::math::Function<T> compose_([f, g](T x) {
+            dg::math::Function<T,T> compose_([f, g](T x) {
                 return f(g(x));
                 });
 

@@ -68,7 +68,7 @@ namespace dg {
 			//unit tangent vector
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			dg::vector::Vector<V> tangentVector_(V var)
+			dg::vector::Vector<V> unitTangent_(V var)
 			{
 				dg::vector::Vector<V> firstDerivative(this->derivative_<1>(var));
 				firstDerivative.normalise();
@@ -97,8 +97,8 @@ namespace dg {
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
 			V totalCurvature(V startingPoint, V period) 
 			{
-				auto curvatureFunction = [startingPoint, period](auto x) {
-					return curvature_(x);
+				auto curvatureFunction = [startingPoint, period,this](auto x) {
+					return this->curvature_(x);
 				};
 
 				return boost::math::quadrature::gauss<V, 7>::integrate(curvatureFunction, startingPoint, startingPoint+period);
