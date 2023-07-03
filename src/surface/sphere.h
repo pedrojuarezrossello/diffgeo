@@ -287,6 +287,24 @@ namespace dg {
 				dg::curve::Circumference<T, V, U> geodesic(radius_, plane);
 				return geodesic; 
 			}
+
+			//Principal curvature
+			auto principalCurvature() const
+			{
+				return -1.0 / radius_;
+			}
+
+			//Gaussian curvature
+			auto guassianCurvature() const
+			{
+				return 1.0 / radius_ * radius_;
+			}
+
+			//Mean curvature
+			auto meanCurvature() const
+			{
+				return -2.0 / radius_;
+			}
 		};
 
 	} //namespace surf
