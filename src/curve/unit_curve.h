@@ -59,7 +59,7 @@ namespace dg {
 			//unit tangent vector
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			dg::vector::Vector<V> tangentVector_(V var) 
+			dg::vector::Vector<V> unitTangent_(V var) 
 			{
 				dg::vector::Vector<V> firstDerivative(this->derivative_<1>(var));
 				return firstDerivative;
@@ -81,7 +81,7 @@ namespace dg {
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
 			dg::vector::Vector<V> binormal(V var)
 			{
-				dg::vector::Vector<V> binormalVec(dg::vector::cross_product(tangentVector_(var), principalNormal(var)));
+				dg::vector::Vector<V> binormalVec(dg::vector::cross_product(unitTangent_(var), principalNormal(var)));
 				return binormalVec;
 			}
 
@@ -90,7 +90,7 @@ namespace dg {
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
 			dg::surf::Plane<V, V> osculatingPlane(V var)
 			{
-				dg::surf::Plane<V, V> osculating(tangentVector_(var), principalNormal(var), this->operator()(var));
+				dg::surf::Plane<V, V> osculating(unitTangent_(var), principalNormal(var), this->operator()(var));
 				return osculating;
 			}
 			
@@ -99,7 +99,7 @@ namespace dg {
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
 			dg::surf::Plane<V, V> rectifyingPlane(V var)
 			{
-				dg::surf::Plane<V, V> rectifying(binormal(var), tangentVector_(var), this->operator()(var));
+				dg::surf::Plane<V, V> rectifying(binormal(var), unitTangent_(var), this->operator()(var));
 				return rectifying;
 			}
 
