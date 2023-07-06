@@ -46,23 +46,34 @@ namespace dg {
             return (num >= 0) ? "+" : "";
         }
 
-        template <typename T, typename Functor> 
-        auto compose(const dg::math::Function<T,T>& f, const Functor& g) 
+     
+        template <typename Functor, typename _Ret, typename Arg> 
+        auto compose(const dg::math::Function<_Ret,Arg>& f, const Functor & g) 
         {
-            dg::math::Function<T,T> compose_([f, g](T x) {
+            dg::math::Function<_Ret, Arg> compose_([=](auto x) {
                 return f(g(x));
                 });
 
             return compose_;
         }
 
-        template <typename T, typename Functor>
-        auto compose(const dg::math::Function<T,T>& f, Functor&& g)
+       template <typename Functor, typename _Ret, typename Arg>
+        auto compose(const dg::math::Function<_Ret,Arg>& f, Functor&& g)
         {
-            dg::math::Function<T,T> compose_([f, g](T x) {
+            dg::math::Function<_Ret, Arg> compose_([=](auto x) {
                 return f(g(x));
                 });
 
+            return compose_;
+        }
+
+        template <typename Functor1,typename Functor2, typename _Ret, typename ... Args>
+        auto compose(const dg::math::Function<_Ret, Args...>& f, Functor1&& g, Functor2&& h)
+        {
+            dg::math::Function<_Ret, Args...> compose_([=](auto... x) {
+                return f(g(x...), h(x...));
+                    });
+        
             return compose_;
         }
 
@@ -79,7 +90,7 @@ namespace dg {
             umbilic
         };
 
-        constexpr const char* TypeToString(Point point) 
+        constexpr const char* typeToString(Point point) 
         {
             switch (point)
             {
