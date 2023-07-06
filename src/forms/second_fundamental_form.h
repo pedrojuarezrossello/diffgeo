@@ -12,10 +12,8 @@ namespace dg {
 
 		public:
 
-			template<typename _Ret, typename... Args>
-			SecondFundamentalForm(const dg::surf::Surface<_Ret, Args...> surface) : TwoFormInterface(std::move(surface.getL_<T, T>()),
-				std::move(surface.getM_<T, T>()),
-				std::move(surface.getN_<T, T>())) {}
+			SecondFundamentalForm(std::function<T(T, T)> A, std::function<T(T, T)> B, std::function<T(T, T)> C)
+				: TwoFormInterface<T>(A, B, C) {}
 
 		};
 

@@ -10,34 +10,21 @@ namespace dg {
 	namespace form {
 
 		template<typename T>
-		class FirstFundamentalForm 
+		class FirstFundamentalForm : public TwoFormInterface<T>
 		{
-			std::function<T(T, T)> A_;
-			std::function<T(T, T)> B_;
-			std::function<T(T, T)> C_;
 		
 			auto computeLineElement_(T X_comp, T Y_comp, T X_der, T Y_der) const
 			{
-				return A_(X_comp, Y_comp) * X_der * X_der
-					+ 2.0 * B_(X_comp, Y_comp) * X_der * Y_der
-					+ C_(X_comp, Y_comp) * Y_der * Y_der;
+				return this->A_(X_comp, Y_comp) * X_der * X_der
+					+ 2.0 * this->B_(X_comp, Y_comp) * X_der * Y_der
+					+ this->C_(X_comp, Y_comp) * Y_der * Y_der;
 			}
 
 
 		public:
 
 			FirstFundamentalForm( std::function<T(T, T)> A,  std::function<T(T, T)> B,  std::function<T(T, T)> C)
-				: A_(A), B_(B), C_(C) {}
-
-			/*template<typename _Ret, typename... Args>
-			FirstFundamentalForm(const dg::surf::Surface<_Ret, Args...> surface) : A_(nullptr), 
-				B_(nullptr),
-				C_(nullptr) {
-				A_ = surface.getE_<T>();
-				B_ = surface.getF_<T>();
-				C_ = surface.getG_<T>();
-				std::cout << "A is " << A_(1.9, 0.3) << std::endl;
-			}*/
+				: TwoFormInterface<T>(A,B,C) {}
 
 			//line element
 			template<typename CurveParam>
@@ -58,7 +45,7 @@ namespace dg {
 				auto areaElement = [this](T var1, T var2) -> T {
 					using std::sqrt;
 					return sqrt(
-						A_(var1, var2) * C_(var1, var2) - B_(var1, var2) * B_(var1, var2)
+						this->A_(var1, var2) * this->C_(var1, var2) - this->B_(var1, var2) * this->B_(var1, var2)
 					);
 				};
 
