@@ -3,6 +3,8 @@
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
 #include "../surface/plane.h"
+#include "../forms/first_fundamental_form.h"
+#include "../forms/second_fundamental_form.h"
 #include <iostream>
 
 namespace dg {
@@ -60,6 +62,67 @@ namespace dg {
 				return (L * G - 2.0 * M * F + N * E) / (2.0 * (E * G - F * F));
 			}
 
+			template<typename T>
+			std::function<T(T, T)> getE_() const
+			{
+				auto E = [this](T var1, T var2) -> T {
+					return this->firstFundamentalForm__Coefficient_<1, 0, T, T>(var1, var2);
+				};
+
+				return E;
+			}
+
+			template<typename T>
+			std::function<T(T, T)> getF_() const
+			{
+				auto F = [this](T var1, T var2) -> T {
+					return this->firstFundamentalForm__Coefficient_<1, T, T>(var1, var2);
+				};
+
+				return F;
+			}
+
+			template<typename T>
+			std::function<T(T, T)> getG_() const
+			{
+				auto G = [this](T var1, T var2) -> T {
+					return this->firstFundamentalForm__Coefficient_<0, 1, T, T>(var1, var2);
+				};
+
+				return G;
+			}
+
+			template<typename T>
+			std::function<T(T, T)> getL_() const
+			{
+				auto L = [this](T var1, T var2) -> T {
+					return this->secondFundamentalForm__Coefficient_<2, 0, T, T>(var1, var2);
+				};
+
+				return L;
+			}
+
+			template<typename T>
+			std::function<T(T, T)> getM_() const
+			{
+				auto M = [this](T var1, T var2) {
+					return this->secondFundamentalForm__Coefficient_<1, 1, T, T>(var1, var2);
+				};
+
+				return M;
+			}
+
+			template<typename T>
+			std::function<T(T, T)> getN_() const
+			{
+				auto N = [this](T var1, T var2) {
+					return this->secondFundamentalForm__Coefficient_<0, 2, T, T>(var1, var2);
+				};
+
+				return N;
+			}
+
+
 		public:
 
 			auto const getX() const { return X_; }
@@ -71,6 +134,7 @@ namespace dg {
 			Surface(const dg::math::Function<_Ret, Args...>& X, const dg::math::Function<_Ret, Args...>& Y, const dg::math::Function<_Ret, Args...>& Z)
 				: X_(X), Y_(Y), Z_(Z) {}
 
+
 			//evaluation
 			template<typename... Us>
 			auto operator()(Us ... var) 
@@ -79,6 +143,21 @@ namespace dg {
 				dg::vector::Vector< std::tuple_element<0, Tuple>::type> evaluation(X_(var...), Y_(var...), Z_(var...));
 				
 				return evaluation;
+			}
+
+			//reparametrise
+			template<typename Functor1, typename Functor2>
+			void reparametrise(Functor1&& reparametrisation1,Functor2&& reparametrisation2)
+			{
+				this->X_ = dg::math::compose<Functor1, Functor2, _Ret, Args...>(this->X_,
+					std::forward<Functor1>(reparametrisation1),
+					std::forward<Functor2>(reparametrisation2));
+				this->Y_ = dg::math::compose<Functor1, Functor2, _Ret, Args...>(this->Y_,
+					std::forward<Functor1>(reparametrisation1),
+					std::forward<Functor2>(reparametrisation2));
+				this->Z_ = dg::math::compose<Functor1, Functor2, _Ret, Args...>(this->Z_,
+					std::forward<Functor1>(reparametrisation1), 
+					std::forward<Functor2>(reparametrisation2));
 			}
 
 			//derivative function
@@ -131,22 +210,6 @@ namespace dg {
 				};
 
 				return gaussMapLambda;
-			}
-
-			//area element
-			template<typename V, typename W>
-			std::function<W(V, V)> areaElement() const
-			{
-				auto areaElement = [this](V var1, V var2) {
-					using std::sqrt;
-					return sqrt(
-						this->firstFundamentalForm__Coefficient_<1, 0, V, W>(var1, var2)
-						* this->firstFundamentalForm__Coefficient_<0, 1, V, W>(var1, var2)
-						- this->firstFundamentalForm__Coefficient_<1, V, W>(var1, var2)
-						* this->firstFundamentalForm__Coefficient_<1, V, W>(var1, var2)
-					);
-				};
-				return areaElement;
 			}
 
 			//Gaussian curvature
@@ -258,6 +321,20 @@ namespace dg {
 					if ((!dg::math::isZero(k1) && dg::math::isZero(k2)) || (dg::math::isZero(k1) && !dg::math::isZero(k2))) return Point::parabolic;
 					else return Point::planar;
 				}
+			}
+
+			//Get First Fundamental Form
+			template<typename U>
+			std::unique_ptr<dg::form::FirstFundamentalForm<U>> firstFundamentalForm() const
+			{
+				return std::make_unique< dg::form::FirstFundamentalForm<U>>(getE_<U>(), getF_<U>(), getG_<U>());
+			}
+
+			//Get Second Fundamental Form
+			template<typename U>
+			std::unique_ptr<dg::form::SecondFundamentalForm<U>> secondFundamentalForm() const
+			{
+				return std::make_unique< dg::form::SecondFundamentalForm<U>>(getL_<U>(), getM_<U>(), getN_<U>());
 			}
 
 		};

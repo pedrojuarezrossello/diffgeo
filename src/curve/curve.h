@@ -79,9 +79,9 @@ namespace dg {
 			template<typename Functor>
 			void reparametrise(Functor&& reparametrisation)
 			{
-				this->X_ = dg::math::compose<T>(this->X_, std::forward<Functor>(reparametrisation));
-				this->Y_ = dg::math::compose<T>(this->Y_, std::forward<Functor>(reparametrisation));
-				this->Z_ = dg::math::compose<T>(this->Z_, std::forward<Functor>(reparametrisation));
+				this->X_ = dg::math::compose<Functor,T,T>(this->X_, std::forward<Functor>(reparametrisation));
+				this->Y_ = dg::math::compose<Functor,T,T>(this->Y_, std::forward<Functor>(reparametrisation));
+				this->Z_ = dg::math::compose<Functor,T,T>(this->Z_, std::forward<Functor>(reparametrisation));
 			}
 
 			//unit speed parametrisation
