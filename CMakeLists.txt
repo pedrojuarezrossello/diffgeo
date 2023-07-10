@@ -1,16 +1,19 @@
+project(DIFFGEO)
 cmake_minimum_required(VERSION 3.12)
 
-project("diffgeo" VERSION 1.0.1
-             DESCRIPTION "A header-only library that provides a computational framework to engage with differential geometric objects in C++."
-             HOMEPAGE_URL "https://github.com/pedrojuarezrossello/diffgeo")
-			 
-include(GNUInstallDirs)
+# Install
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/src DESTINATION include)
 
-add_library(${PROJECT_NAME} INTERFACE)
+# C++17
+set(CMAKE_CXX_STANDARD 17)
 
-target_include_directories(
-  ${PROJECT_NAME}
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-			
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
+# DIFFGEO
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
+
+# Set appropriate optimization flags
+# For debugging, use `cmake -DCMAKE_BUILD_TYPE=Debug .`
+SET(CMAKE_BUILD_TYPE Release)
+
+
+
