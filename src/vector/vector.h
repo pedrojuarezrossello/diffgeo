@@ -6,6 +6,7 @@
 #include <type_traits>
 #include "../utils/type_traits.h"
 #include "../utils/maths.h"
+#include "../vector/vector_expression.h"
 
 
 namespace dg {

@@ -1,7 +1,7 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 #include <type_traits>
-#include "vector_expression.h"
+#include "../vector/vector_expression.h"
 #include "../utils/type_traits.h"
 
 namespace dg {

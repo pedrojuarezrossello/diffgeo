@@ -2,7 +2,6 @@
 #define UNIT_CURVE_H
 #include <type_traits>
 #include "../curve/curve_interface.h"
-//#include "../curve/curve.h"
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
 #include "../utils/operations.h"
