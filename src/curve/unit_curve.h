@@ -4,7 +4,7 @@
 #include "../curve/curve_interface.h"
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
-#include "../utils/operations.h"
+#include "../vector/operations.h"
 #include "../surface/plane.h"
 
 namespace dg {

@@ -1,11 +1,10 @@
-#ifndef SURFACE_H
-#define SURFACE_H
+#ifndef DG_SURFACE_H
+#define DG_SURFACE_H
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
 #include "../surface/plane.h"
 #include "../forms/first_fundamental_form.h"
 #include "../forms/second_fundamental_form.h"
-#include <iostream>
 
 namespace dg {
 
@@ -343,5 +342,5 @@ namespace dg {
 
 } //namespace dg
 
-#endif // !SURFACE_H
+#endif // !DG_SURFACE_H
 

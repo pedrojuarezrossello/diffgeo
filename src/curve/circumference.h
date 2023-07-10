@@ -1,5 +1,5 @@
-#ifndef CIRCUMFERENCE_H
-#define CIRCUMFERENCE_H
+#ifndef DG_CIRCUMFERENCE_H
+#define DG_CIRCUMFERENCE_H
 #include "../surface/plane.h"
 
 namespace dg {
@@ -59,4 +59,4 @@ namespace dg {
 
 } //namespace dg
 
-#endif //!CIRCUMFERENCE_H
+#endif //!DG_CIRCUMFERENCE_H

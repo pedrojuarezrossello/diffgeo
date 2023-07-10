@@ -1,6 +1,5 @@
-#ifndef FIRST_FUNDAMENTAL_FORM_H
-#define FIRST_FUNDAMENTAL_FORM_H
-#include <iostream>
+#ifndef DG_FIRST_FUNDAMENTAL_FORM_H
+#define DG_FIRST_FUNDAMENTAL_FORM_H
 #include "../forms/two_form_interface.h"
 #include "../surface/surface.h"
 #include "../utils/real_function.h"

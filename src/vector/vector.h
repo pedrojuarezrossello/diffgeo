@@ -1,13 +1,12 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef DG_VECTOR_H
+#define DG_VECTOR_H
+#include "../utils/type_traits.h"
+#include "../utils/maths.h"
+#include "../vector/vector_expression.h"
 #include <vector>
 #include <iostream>
 #include <cmath>
 #include <type_traits>
-#include "../utils/type_traits.h"
-#include "../utils/maths.h"
-#include "../vector/vector_expression.h"
-
 
 namespace dg {
 
@@ -182,4 +181,4 @@ namespace dg {
 
 }//namespace dg
 
-#endif //!VECTOR_H
+#endif //!DG_VECTOR_H

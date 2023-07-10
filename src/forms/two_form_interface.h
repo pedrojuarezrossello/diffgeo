@@ -1,5 +1,5 @@
-#ifndef TWO_FORM_INTERFACE_H
-#define TWO_FORM_INTERFACE_H
+#ifndef DG_TWO_FORM_INTERFACE_H
+#define DG_TWO_FORM_INTERFACE_H
 #include "../utils/real_function.h"
 #include "../forms/vector_field.h"
 
@@ -39,5 +39,5 @@ namespace dg {
 
 } //namespace dg
 
-#endif // !TWO_FORM_INTERFACE_H
+#endif // !DG_TWO_FORM_INTERFACE_H
 

@@ -1,9 +1,9 @@
-#ifndef SPHERE_H
-#define SPHERE_H
-#include <type_traits>
-#include "plane.h"
+#ifndef DG_SPHERE_H
+#define DG_SPHERE_H
+#include "../surface/plane.h"
 #include "../curve/circumference.h"
 #include <optional>
+#include <type_traits>
 
 namespace dg {
 

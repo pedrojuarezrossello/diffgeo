@@ -1,9 +1,9 @@
-#ifndef OPERATIONS_H
-#define OPERATIONS_H
-#include <type_traits>
+#ifndef DG_OPERATIONS_H
+#define DG_OPERATIONS_H
 #include "../vector/vector_expression.h"
 #include "../utils/type_traits.h"
 
+#include <type_traits>
 namespace dg {
 
 	namespace vector {
@@ -75,4 +75,4 @@ namespace dg {
 
 } //namespace dg
 
-#endif //!OPERATIONS_H
+#endif //!DG_OPERATIONS_H

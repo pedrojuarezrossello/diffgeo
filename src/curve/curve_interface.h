@@ -1,8 +1,8 @@
-#ifndef CURVE_INTERFACE_H
-#define CURVE_INTERFACE_H
-#include <type_traits>
+#ifndef DG_CURVE_INTERFACE_H
+#define DG_CURVE_INTERFACE_H
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
+#include <type_traits>
 
 namespace dg {
 
@@ -97,4 +97,4 @@ namespace dg {
 
 	}
 }
-#endif //!CURVE_INTERFACE_H
+#endif //!DG_CURVE_INTERFACE_H

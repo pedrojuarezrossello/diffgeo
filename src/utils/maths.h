@@ -1,9 +1,9 @@
-#ifndef MATHS_H
-#define MATHS_H
+#ifndef DG_MATHS_H
+#define DG_MATHS_H
+#include "../utils/real_function.h"
 #include <cfloat>
 #include <cmath>
 #include <functional>
-#include "../utils/real_function.h"
 
 namespace dg {
 
@@ -107,4 +107,4 @@ namespace dg {
 
 } //namespace dg
 
-#endif //!MATHS_H
+#endif //!DG_MATHS_H

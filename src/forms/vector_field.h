@@ -1,5 +1,5 @@
-#ifndef VECTOR_FIELD_H
-#define VECTOR_FIELD_H
+#ifndef DG_VECTOR_FIELD_H
+#define DG_VECTOR_FIELD_H
 #include <functional>
 
 namespace dg {
@@ -29,4 +29,4 @@ namespace dg {
 
 } //namespace dg
 
-#endif // !VECTOR_FIELD_H
+#endif // !DG_VECTOR_FIELD_H

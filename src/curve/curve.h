@@ -1,14 +1,14 @@
-#ifndef CURVE_H
-#define CURVE_H
-#include <type_traits>
-#include <memory>
-#include <boost/math/quadrature/gauss.hpp>
+#ifndef DG_CURVE_H
+#define DG_CURVE_H
 #include "../curve/curve_interface.h"
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
-#include "../utils/operations.h"
+#include "../vector/operations.h"
 #include "../utils/maths.h"
 #include "../curve/unit_curve.h"
+#include <boost/math/quadrature/gauss.hpp>
+#include <type_traits>
+#include <memory>
 
 namespace dg {
 
@@ -108,4 +108,4 @@ namespace dg {
 	} //namespace curve
 
 } //namespace dg
-#endif //!CURVE_H
+#endif //!DG_CURVE_H

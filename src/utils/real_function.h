@@ -1,9 +1,8 @@
-#ifndef REAL_FUNCTION_H
-#define REAL_FUNCTION_H
+#ifndef DG_REAL_FUNCTION_H
+#define DG_REAL_FUNCTION_H
+#include <boost/math/differentiation/autodiff.hpp>
 #include <type_traits>
 #include <functional>
-#include <boost/math/differentiation/autodiff.hpp>
-#include <iostream>
 
 namespace dg {
 
@@ -90,5 +89,5 @@ namespace dg {
 
 
 
-#endif //!REAL_FUNCTION_H
+#endif //!DG_REAL_FUNCTION_H
 

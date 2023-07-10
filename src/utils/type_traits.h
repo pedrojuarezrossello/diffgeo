@@ -1,7 +1,8 @@
 #ifndef TYPE_TRAITS_H
 #define TYPE_TRAITS_H
-#include <type_traits>
 #include <boost/math/differentiation/autodiff.hpp>
+#include <type_traits>
+
 
 namespace dg {
 

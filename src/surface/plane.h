@@ -1,10 +1,10 @@
-#ifndef PLANE_H
-#define PLANE_H
-#include <cstddef>
+#ifndef DG_PLANE_H
+#define DG_PLANE_H
 #include "../vector/vector.h"
-#include "../utils/operations.h"
+#include "../vector/operations.h"
 #include "../curve/line.h"
 #include "../utils/maths.h"
+#include <cstddef>
 
 namespace dg {
 
@@ -263,4 +263,4 @@ namespace dg {
 
 } //namespace dg
 
-#endif //!PLANE_H
+#endif //!DG_PLANE_H

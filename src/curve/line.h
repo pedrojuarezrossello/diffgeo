@@ -1,7 +1,7 @@
-#ifndef LINE_H
-#define LINE_H
+#ifndef DG_LINE_H
+#define DG_LINE_H
 #include "../vector/vector.h"
-#include "../utils/operations.h"
+#include "../vector/operations.h"
 
 namespace dg {
 
@@ -194,4 +194,4 @@ namespace dg {
     
 } //namespace dg
 
-#endif //!LINE_H
+#endif //!DG_LINE_H

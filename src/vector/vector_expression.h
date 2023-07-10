@@ -1,8 +1,8 @@
-#ifndef VECTOR_EXPRESSION_H
-#define VECTOR_EXPRESSION_H
+#ifndef DG_VECTOR_EXPRESSION_H
+#define DG_VECTOR_EXPRESSION_H
+#include "../utils/type_traits.h"
 #include <tuple>
 #include <iostream>
-#include "../utils/type_traits.h"
 
 namespace dg {
 
@@ -60,5 +60,6 @@ namespace dg {
 	} //namespace vector
 
 } //namespace dg
-#endif //!VECTOR_EXPRESSION_h
+
+#endif //!DG_VECTOR_EXPRESSION_H
 

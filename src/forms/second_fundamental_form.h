@@ -1,5 +1,5 @@
-#ifndef SECOND_FUNDAMENTAL_FORM_H
-#define SECOND_FUNDAMENTAL_FORM_H
+#ifndef DG_SECOND_FUNDAMENTAL_FORM_H
+#define DG_SECOND_FUNDAMENTAL_FORM_H
 #include "../forms/two_form_interface.h"
 
 namespace dg {
@@ -21,4 +21,4 @@ namespace dg {
 
 } //namespace dg
 
-#endif // !SECOND_FUNDAMENTAL_FORM_H
+#endif // !DG_SECOND_FUNDAMENTAL_FORM_H
