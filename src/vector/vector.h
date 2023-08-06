@@ -19,6 +19,21 @@ namespace dg {
 			using index = size_t;
 			std::vector<T> vector_;
 
+			template<typename U>
+			void scale_(U scalar)
+			{
+				for (auto& component : vector_) {
+					component *= scalar;
+				}
+			}
+
+			Vector perpendicular_()
+			{
+				return copysign(this->vector_[2], this->vector_[0]),
+					copysign(this->vector_[2], this->vector_[1]),
+					-copysign(abs(this->vector_[0]) + abs(this->vector_[1]), this->vector_[2]);
+			}
+
 		public:
 
 			//Constructors
@@ -74,6 +89,8 @@ namespace dg {
 				return vector_[i];
 			}
 
+			//Printing util
+
 			friend std::ostream& operator<<(std::ostream& os, Vector const& vector)
 			{
 				os << "(";
@@ -86,14 +103,14 @@ namespace dg {
 				return os;
 			}
 
+			//Scaling
+
 			template<typename U,
 				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
-			friend auto operator*(U lhs, Vector& rhs)
+			auto& operator*=(U rhs)
 			{
-				for (size_t i = 0; i < 3; i++) {
-					rhs.vector_[i] *= lhs;
-				}
-				return rhs;
+				scale_(rhs);
+				return *this;
 			}
 
 			template<typename U,
@@ -104,20 +121,15 @@ namespace dg {
 				return scaledVector;
 			}
 
+			//Dot product
+
 			template<typename RHS>
 			auto operator*(const RHS& rhs) const
 			{
-				static_assert(is_vector_or_expression_t<RHS>, "Can only dot by a vector or a vector expression");
 				return vector_[0] * rhs[0] + vector_[1] * rhs[1] + vector_[2] * rhs[2];
 			}
 
-			template<typename U,
-				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
-			friend double distance(const Vector& vec1, const Vector<U>& vec2)
-			{
-				const Vector<T> diffVec = vec1 - vec2;
-				return diffVec.norm();
-			}
+			//Norms, distances, and metrics
 
 			double norm() const
 			{
@@ -130,48 +142,64 @@ namespace dg {
 				return metric_function(vector_[0], vector_[1], vector_[2]);
 			}
 
-			template<typename RHS>
-			bool isPerpendicular(const RHS& vect)
-			{
-				return (dg::math::isZero(vect * (*this))) ? true : false;
-			}
-
-			template<typename RHS>
-			Vector& orthogonalProjection(const RHS& vect)
-			{
-				if (dg::math::isZero(this->norm())) throw std::exception("Base vector can't be null");
-				return (((*this) * vect) / pow(this->norm(), 2)) * (*this);
-			}
-
 			void normalise()
 			{
 				T norm = this->norm();
 
 				if (dg::math::almostEqualRelativeAndAbs(norm, 0.0, 1.0e-6)) return;
 
-				for (auto& component : vector_)
-				{
-					component *= 1.0 / norm;
-				}
+				scale_(1.0 / norm);
 			}
 
-			Vector perpendicular() const
+			template<typename Metric>
+			void normalise(Metric metric_function)
 			{
-				Vector perpendicular(copysign(this->vector_[2], this->vector_[0]),
-					copysign(this->vector_[2], this->vector_[1]),
-					-copysign(abs(this->vector_[0]) + abs(this->vector_[1]), this->vector_[2]));
+				T norm = this->norm<Metric>(metric_function);
 
-				perpendicular.normalise();
+				if (dg::math::almostEqualRelativeAndAbs(norm, 0.0, 1.0e-6)) return;
 
-				return perpendicular; //(N)RVO
+				scale_(1.0 / norm);
 			}
 
 			template<typename U,
-				std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
-			friend double angle(const Vector& vec1, const Vector<U>& vec2)
+				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
+			friend double distance(const Vector& vec1, const Vector<U>& vec2)
 			{
-				if (dg::math::isZero(vec1.norm()) || dg::math::isZero(vec2.norm())) throw std::exception("Vectors can't be null");
-				return atan2(cross_product(vec1, vec2).norm(), vec1 * vec2)+dg::math::PI;
+				const Vector<T> diffVec(vec1 - vec2);
+				return diffVec.norm();
+			}
+
+			template<typename U, typename Metric,
+				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
+			friend double distance(const Vector& vec1, const Vector<U>& vec2)
+			{
+				const Vector<T> diffVec(vec1 - vec2);
+				return diffVec.norm<Metric>();
+			}
+
+			//Perpendicular & parallel
+
+			Vector perpendicular() const
+			{
+				auto perpVector(perpendicular_());
+				perpVector.normalise();
+
+				return perpVector; //(N)RVO
+			}
+
+			template<typename Metric>
+			Vector perpendicular(Metric metric_function) const
+			{
+				auto perpVector(perpendicular_());
+				perpVector.normalise<Metric>(metric_function);
+
+				return perpVector; //(N)RVO
+			}
+
+			template<typename RHS>
+			bool isPerpendicular(const RHS& vect)
+			{
+				return (dg::math::isZero(vect * (*this))) ? true : false;
 			}
 
 			template<typename U,
@@ -183,7 +211,22 @@ namespace dg {
 					dg::math::isZero(vec1.vector_[2] * vec2.vector_[1] - vec1.vector_[1] * vec2.vector_[2]));
 			}
 
-			
+			//Orthogonal projection
+
+			template<typename RHS>
+			Vector& orthogonalProjection(const RHS& vect)
+			{
+				return (((*this) * vect) / pow(this->norm(), 2)) * (*this);
+			}
+
+			//Angle
+
+			template<typename U,
+				std::enable_if_t<std::is_floating_point_v<T>, std::nullptr_t> = nullptr>
+			friend double angle(const Vector& vec1, const Vector<U>& vec2)
+			{
+				return atan2(cross_product(vec1, vec2).norm(), vec1 * vec2)+dg::math::PI;
+			}
 		};
 	
 	} //namespace vector
