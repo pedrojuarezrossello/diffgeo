@@ -21,6 +21,8 @@ namespace dg {
 
 		public:
 
+			//Constructors
+
 			Vector() = default;
 
 			explicit Vector(std::vector<T>& v) : vector_(v) {}
@@ -29,6 +31,8 @@ namespace dg {
 
 			explicit Vector(T a, T b, T c) : vector_{ a,b,c } {}
 
+			//Note these next two doesn't stop the compiler from generating copy/move constructors
+
 			template<typename CallableObject, typename ... Args>
 			Vector(const VectorExpression<CallableObject, Args...>& rhs) : vector_{ 0,0,0 }
 			{
@@ -36,7 +40,6 @@ namespace dg {
 				{
 					vector_[i] = rhs[i];
 				}
-
 			}
 
 			template<typename CallableObject, typename ... Args>
@@ -50,12 +53,23 @@ namespace dg {
 				return *this;
 			}
 
-			T operator[] (size_t i)
+			//Equality 
+
+			bool operator==(const Vector& vec)
+			{
+				return dg::math::almostEqualRelativeAndAbs(this->vector_[0], vec.vector_[0], 1.0e-6) &&
+					dg::math::almostEqualRelativeAndAbs(this->vector_[1], vec.vector_[1], 1.0e-6) &&
+					dg::math::almostEqualRelativeAndAbs(this->vector_[2], vec.vector_[2], 1.0e-6);
+			}
+
+			//Component fetching
+
+			T& operator[] (size_t i)
 			{
 				return vector_[i];
 			}
 
-			T operator[] (size_t i) const
+			const T operator[] (size_t i) const
 			{
 				return vector_[i];
 			}
@@ -169,16 +183,11 @@ namespace dg {
 					dg::math::isZero(vec1.vector_[2] * vec2.vector_[1] - vec1.vector_[1] * vec2.vector_[2]));
 			}
 
-			bool operator==(const Vector& vec)
-			{
-				return dg::math::almostEqualRelativeAndAbs(this->vector_[0], vec.vector_[0], 1.0e-6) &&
-					dg::math::almostEqualRelativeAndAbs(this->vector_[1], vec.vector_[1], 1.0e-6) &&
-					dg::math::almostEqualRelativeAndAbs(this->vector_[2], vec.vector_[2], 1.0e-6);
-			}
+			
 		};
 	
 	} //namespace vector
 
-}//namespace dg
+} //namespace dg
 
 #endif //!DG_VECTOR_H
