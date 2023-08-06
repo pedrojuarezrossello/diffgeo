@@ -16,7 +16,8 @@ namespace dg {
 
         public:
 
-            //constructors and equals
+            //Constructors 
+
             Line() = default;
 
             Line(const dg::vector::Vector<U>& point, const dg::vector::Vector<T>& direction)
@@ -53,47 +54,36 @@ namespace dg {
                 direction_.normalise();
             }
 
+            //Equality
+
             bool operator==(const Line& rhs)
             {
                 return direction_ == rhs.direction_ && point_ == rhs.point_;
             }
 
-            //getters
+            //Getter
             const dg::vector::Vector<T>& getDirection() const
             {
                 return direction_;
             }
-            dg::vector::Vector<T>& getDirection()
-            {
-                return const_cast<int&>(const_cast<const Line*>(this)->getDirection());
-            }
 
-            //print util
+            //Print util
             friend std::ostream& operator<<(std::ostream& os, Line const& line)
             {
                 os << line.point_ << " + t" << line.direction_;
                 return os;
             }
 
-            //fetch point at x
-            template<typename V,
-                std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-            auto at(V x)
-            {
-                dg::vector::Vector<T> newPoint = point_ + x * direction_;
-                return newPoint; //(N)RVO
-            }
-
+            //Fetch point at x
             template<typename V,
                 std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
             auto at(V x) const
             {
-                dg::vector::Vector<T> newPoint = point_ + x * direction_;
+                dg::vector::Vector<T> newPoint(point_ + x * direction_);
                 return newPoint; //(N)RVO
             }
 
-
-            //check for inclusion of a point 
+            //Check for inclusion of a point 
             template<typename V,
                 std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
             bool isInLine(const dg::vector::Vector<V>& vec)
@@ -102,7 +92,7 @@ namespace dg {
                 return areParallel(direction_, pointToPoint);
             }
 
-            //parallel lines
+            //Parallel lines
             template<typename V, typename W,
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
             friend bool areParallel(const Line& line1, const Line<V, W>& line2)
@@ -110,7 +100,27 @@ namespace dg {
                 return areParallel(line1.direction_, line2.direction_);
             }
 
-            //distance between two lines
+            //Parallel line through point P
+            template<typename V,
+                std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
+            Line<V, T> parallelFrom(const dg::vector::Vector<V>& point)
+            {
+                Line<V, T> parallel(point, direction_);
+                return parallel; //(N)RVO
+            }
+
+            //Intersection
+            template<typename V, typename W,
+                std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
+            bool intersects(const Line<V, W>& line)
+            {
+                if (areParallel(*this, line) && !*this == line) return false;
+                //two lines contained in the same plane
+                return dg::math::isZero(dg::vector::cross_product(direction_, line.direction_) * (point_ - line.point_));
+
+            }
+
+            //Distance between two lines
             template<typename V, typename W,
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
             friend double distance(const Line& line1, const Line<V, W>& line2)
@@ -122,11 +132,11 @@ namespace dg {
                     return fabs(normalVector * (line1.point_ - line2.point_));
                 }
 
-                auto normalVector = dg::vector::cross_product(line1.point_ - line2.point_, line1.direction_);
+                auto normalVector(dg::vector::cross_product(line1.point_ - line2.point_, line1.direction_));
                 return normalVector.norm();
             }
 
-            //closest point on line from other point
+            //Closest point on line from other point
             template<typename Point,
                 typename = std::enable_if_t<dg::vector::is_vector_or_expression_t<Point>>>
             auto closestPoint(const Point& point)
@@ -136,7 +146,7 @@ namespace dg {
                 return closestPoint;
             }
 
-            //distance between point and line
+            //Distance between point and line
             template<typename V,
                 std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
             double distanceFrom(const dg::vector::Vector<V>& point)
@@ -148,11 +158,11 @@ namespace dg {
             template<typename CallableObject, typename... Args>
             double distanceFrom(const dg::vector::VectorExpression<CallableObject, Args...>& point)
             {
-                const dg::vector::Vector<double> pointAsVec = point;
+                const dg::vector::Vector<double> pointAsVec(point);
                 return distanceFrom(pointAsVec);
             }
 
-            //perpendicular line through point P
+            //Perpendicular line through point P
             template<typename V,
                 std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
             Line<V, T> perpendicularFrom(const dg::vector::Vector<V>& point)
@@ -161,16 +171,8 @@ namespace dg {
                 return perpendicular; //(N)RVO
             }
 
-            //parallel line through point P
-            template<typename V,
-                std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr>
-            Line<V, T> parallelFrom(const dg::vector::Vector<V>& point)
-            {
-                Line<V, T> parallel(point, direction_);
-                return parallel; //(N)RVO
-            }
-
-            //angle between two lines
+           
+            //Angle between two lines
             template<typename V, typename W,
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
             friend double angle(const Line& line1, const Line<V, W>& line2)
@@ -178,16 +180,7 @@ namespace dg {
                 return angle(line1.direction_, line2.direction_);
             }
 
-            //do two lines intersect?
-            template<typename V, typename W,
-                std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
-            bool intersects(const Line<V, W>& line)
-            {
-                if (areParallel(*this, line) && !*this == line) return false;
-                //two lines contained in the same plane
-                return dg::math::isZero(dg::vector::cross_product(direction_, line.direction_) * (point_ - line.point_));
-
-            }
+           
         };
 
     } //namespace curve

@@ -46,7 +46,7 @@ namespace dg {
 
 			explicit Vector(T a, T b, T c) : vector_{ a,b,c } {}
 
-			//Note these next two doesn't stop the compiler from generating copy/move constructors
+			//Note these don't stop the compiler from generating copy/move constructors
 
 			template<typename CallableObject, typename ... Args>
 			Vector(const VectorExpression<CallableObject, Args...>& rhs) : vector_{ 0,0,0 }
