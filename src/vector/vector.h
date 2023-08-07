@@ -49,13 +49,7 @@ namespace dg {
 			//Note these don't stop the compiler from generating copy/move constructors
 
 			template<typename CallableObject, typename ... Args>
-			Vector(const VectorExpression<CallableObject, Args...>& rhs) : vector_{ 0,0,0 }
-			{
-				for (size_t i = 0; i < 3; i++)
-				{
-					vector_[i] = rhs[i];
-				}
-			}
+			Vector(const VectorExpression<CallableObject, Args...>& rhs) : vector_{ rhs[0],rhs[1],rhs[2]} {}
 
 			template<typename CallableObject, typename ... Args>
 			Vector& operator=(const VectorExpression<CallableObject, Args...>& rhs)
@@ -129,9 +123,9 @@ namespace dg {
 				return vector_[0] * rhs[0] + vector_[1] * rhs[1] + vector_[2] * rhs[2];
 			}
 
-			//Norms, distances, and metrics
+			//Norms and metrics
 
-			double norm() const
+			auto norm() const
 			{
 				return sqrt(vector_[0] * vector_[0] + vector_[1] * vector_[1] + vector_[2] * vector_[2]);
 			}
@@ -161,21 +155,6 @@ namespace dg {
 				scale_(1.0 / norm);
 			}
 
-			template<typename U,
-				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
-			friend double distance(const Vector& vec1, const Vector<U>& vec2)
-			{
-				const Vector<T> diffVec(vec1 - vec2);
-				return diffVec.norm();
-			}
-
-			template<typename U, typename Metric,
-				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
-			friend double distance(const Vector& vec1, const Vector<U>& vec2)
-			{
-				const Vector<T> diffVec(vec1 - vec2);
-				return diffVec.norm<Metric>();
-			}
 
 			//Perpendicular & parallel
 
@@ -228,6 +207,23 @@ namespace dg {
 				return atan2(cross_product(vec1, vec2).norm(), vec1 * vec2)+dg::math::PI;
 			}
 		};
+
+		//Distances
+		template<typename U, typename LHS, typename RHS,
+			std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
+		auto distance(const LHS& vec1, const RHS& vec2)
+		{
+			const Vector<U> diffVec(vec1 - vec2);
+			return diffVec.norm();
+		}
+
+		template<typename U, typename LHS, typename RHS, typename Metric,
+			std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
+		auto distance(const LHS& vec1, const RHS& vec2)
+		{
+			const Vector<U> diffVec(vec1 - vec2);
+			return diffVec.norm<Metric>();
+		}
 	
 	} //namespace vector
 

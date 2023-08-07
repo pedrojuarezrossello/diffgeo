@@ -79,7 +79,7 @@ namespace dg {
                 std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
             auto at(V x) const
             {
-                dg::vector::Vector<T> newPoint(point_ + x * direction_);
+                dg::vector::Vector<V> newPoint(point_ + x * direction_);
                 return newPoint; //(N)RVO
             }
 
@@ -114,7 +114,7 @@ namespace dg {
                 std::enable_if_t<std::is_floating_point_v<V>&& std::is_floating_point_v<W>, std::nullptr_t> = nullptr>
             bool intersects(const Line<V, W>& line)
             {
-                if (areParallel(*this, line) && !*this == line) return false;
+                if (areParallel(*this, line) && *this != line) return false;
                 //two lines contained in the same plane
                 return dg::math::isZero(dg::vector::cross_product(direction_, line.direction_) * (point_ - line.point_));
 
@@ -141,8 +141,8 @@ namespace dg {
                 typename = std::enable_if_t<dg::vector::is_vector_or_expression_t<Point>>>
             auto closestPoint(const Point& point)
             {
-                const double projection = (point - point_) * direction_;
-                auto closestPoint = at(projection);
+                const double projection{ (point - point_) * direction_ };
+                dg::vector::Vector<T> closestPoint(at(projection));
                 return closestPoint;
             }
 
@@ -152,13 +152,13 @@ namespace dg {
             double distanceFrom(const dg::vector::Vector<V>& point)
             {
                 auto closest(closestPoint(point));
-                return distance(closest, point);
+                return dg::vector::distance<V>(closest, point);
             }
 
             template<typename CallableObject, typename... Args>
             double distanceFrom(const dg::vector::VectorExpression<CallableObject, Args...>& point)
             {
-                const dg::vector::Vector<double> pointAsVec(point);
+                const dg::vector::Vector<T> pointAsVec(point);
                 return distanceFrom(pointAsVec);
             }
 
@@ -180,7 +180,6 @@ namespace dg {
                 return angle(line1.direction_, line2.direction_);
             }
 
-           
         };
 
     } //namespace curve
