@@ -1,3 +1,15 @@
+/** @file vector.h
+ *  @brief 3D vector class.
+ * 
+ *	It's the basis of the library, and it
+ *	represents both a point in three dimensions 
+ *	as well as a directed vector. It features the major 
+ *	linear algebra related operations.
+ * 
+ *  @author Pedro Juarez Rossello (pedrojuarezrossello)
+ *  @bug No known bugs.
+ */
+
 #ifndef DG_VECTOR_H
 #define DG_VECTOR_H
 #include "../utils/type_traits.h"
@@ -12,26 +24,35 @@ namespace dg {
 
 	namespace vector {
 
+		/** 
+		* @tparam T Type of the vector components. 
+		* It must be a floating-point type.
+		*/
 		template<typename T>
 		class Vector
 		{
 			static_assert(std::is_floating_point_v< T >, "Vector<T> only accepts numeric types!");
-			using index = size_t;
-			std::vector<T> vector_;
 
+			/**
+			* @brief Underlying data structure is a three element array of type T
+			*/
+			std::array<T,3> vector_;
+
+			//Scaling util function
 			template<typename U>
-			void scale_(U scalar)
+			void scale_(U scalar) 
 			{
 				for (auto& component : vector_) {
 					component *= scalar;
 				}
 			}
 
-			Vector perpendicular_()
+			//Perpendicular util function
+			Vector perpendicular_() const
 			{
-				return copysign(this->vector_[2], this->vector_[0]),
+				return Vector(copysign(this->vector_[2], this->vector_[0]),
 					copysign(this->vector_[2], this->vector_[1]),
-					-copysign(abs(this->vector_[0]) + abs(this->vector_[1]), this->vector_[2]);
+					-copysign(abs(this->vector_[0]) + abs(this->vector_[1]), this->vector_[2]));
 			}
 
 		public:
@@ -66,9 +87,17 @@ namespace dg {
 
 			bool operator==(const Vector& vec)
 			{
-				return dg::math::almostEqualRelativeAndAbs(this->vector_[0], vec.vector_[0], 1.0e-6) &&
-					dg::math::almostEqualRelativeAndAbs(this->vector_[1], vec.vector_[1], 1.0e-6) &&
-					dg::math::almostEqualRelativeAndAbs(this->vector_[2], vec.vector_[2], 1.0e-6);
+				return dg::math::almostEqualRelativeAndAbs(this->vector_[0], vec.vector_[0], 1.0e-11) &&
+					dg::math::almostEqualRelativeAndAbs(this->vector_[1], vec.vector_[1], 1.0e-11) &&
+					dg::math::almostEqualRelativeAndAbs(this->vector_[2], vec.vector_[2], 1.0e-11);
+			}
+
+			template<typename CallableObject, typename ... Args>
+			bool operator==(const VectorExpression<CallableObject, Args...>& rhs) 
+			{
+				return dg::math::almostEqualRelativeAndAbs(this->vector_[0], rhs.vector_[0], 1.0e-11) &&
+					dg::math::almostEqualRelativeAndAbs(this->vector_[1], rhs.vector_[1], 1.0e-11) &&
+					dg::math::almostEqualRelativeAndAbs(this->vector_[2], rhs.vector_[2], 1.0e-11);
 			}
 
 			//Component fetching
