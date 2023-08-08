@@ -180,7 +180,7 @@ namespace dg {
 			/** 
 			* @brief Component fetching (non-const)
 			* 
-			* @detail It fetches the ith component and returns a reference
+			* @details It fetches the ith component and returns a reference
 			* to this element, allowing us to modify the component - read and write.
 			* 
 			* @param i Index we'd like to fetch.
@@ -195,7 +195,7 @@ namespace dg {
 			/**
 			* @brief Component fetching (const)
 			*
-			* @detail It fetches the ith component and returns 
+			* @details It fetches the ith component and returns 
 			* a const copy of this element, so it's read only.
 			*
 			* @param i Index we'd like to fetch.

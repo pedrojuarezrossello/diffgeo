@@ -1,3 +1,17 @@
+/** @file curve_interface.h
+ *	@ingroup Curves
+ *  @brief Interface class for curves.
+ *
+ *	It provides the basic interface for the curve
+ *	classes RegularCurve and UnitCurve. It uses the
+ *	CRTP to achieve a sort of reversed (static) polymorphism,
+ *	so the functions that one must call from client code are
+ *	specified here. 
+ * 
+ *  @author Pedro Juarez Rossello (pedrojuarezrossello)
+ *  @bug No known bugs.
+ */
+
 #ifndef DG_CURVE_INTERFACE_H
 #define DG_CURVE_INTERFACE_H
 #include "../utils/real_function.h"
