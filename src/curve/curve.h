@@ -1,9 +1,9 @@
 /** @file curve.h
  *	@ingroup Curves
- *  @brief Curve class for non unit-length curves.
+ *  @brief Curve class for non unit-speed curves.
  *
  *	It provides an implementation of the Curve interface
- *  for curves that aren't necessarily unit-length.
+ *  for curves that aren't necessarily unit-speed.
  *
  *  @author Pedro Juarez Rossello (pedrojuarezrossello)
  *  @bug No known bugs.
@@ -27,7 +27,7 @@ namespace dg {
 	namespace curve {
 
 		/**
-		* @headerfile curve_interface.h "src/curve/curve_interface.h"
+		* @headerfile curve.h "src/curve/curve.h"
 		* 
 		* @tparam T The library has defined a type `dg::param<U>` 
 		* for U a flaoting point (underlying) type
