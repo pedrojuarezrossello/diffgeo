@@ -32,52 +32,7 @@ namespace dg {
 		template<typename CurveImpl, typename T>
 		class CurveInterface
 		{
-		protected:
-
-			/**
-			* @brief X component function.
-			* 
-			* @tparam T The library has defined a type `dg::param<U>` 
-			* for U a flaoting point (underlying) type
-			* which has to be passed as a template argument for the 
-			* component function of a curve to allow autodifferentiation.
-			*/
-			dg::math::Function<T,T> X_;
-
-			/**
-			* @brief X component function.
-			*
-			* @tparam T The library has defined a type `dg::param<U>`
-			* for U a flaoting point (underlying) type
-			* which has to be passed as a template argument for the
-			* component function of a curve to allow autodifferentiation.
-			*/
-			dg::math::Function<T,T> Y_;
-
-			/**
-			* @brief X component function.
-			*
-			* @tparam T The library has defined a type `dg::param<U>`
-			* for U a flaoting point (underlying) type
-			* which has to be passed as a template argument for the
-			* component function of a curve to allow autodifferentiation.
-			*/
-			dg::math::Function<T,T> Z_;
-
-			//Derivative util method 
-			template<int Order, typename V,
-				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
-			dg::vector::Vector<V> derivative_(V var) const
-			{
-				dg::vector::Vector<V> componentwiseDerivative(
-					X_.derivative<Order>(var),
-					Y_.derivative<Order>(var),
-					Z_.derivative<Order>(var)
-				);
-
-				return componentwiseDerivative;
-			}
-
+		
 			//Evaluation util method
 			template<typename V,
 				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
@@ -117,6 +72,52 @@ namespace dg {
 			dg::vector::Vector<V> unitTangentUtil_(V var)
 			{
 				return static_cast<CurveImpl*>(this)->unitTangent_(var);
+			}
+
+		protected:
+
+			/**
+			* @brief X component function.
+			* 
+			* @tparam T The library has defined a type `dg::param<U>` 
+			* for U a flaoting point (underlying) type
+			* which has to be passed as a template argument for the 
+			* component function of a curve to allow autodifferentiation.
+			*/
+			dg::math::Function<T,T> X_;
+
+			/**
+			* @brief X component function.
+			*
+			* @tparam T The library has defined a type `dg::param<U>`
+			* for U a flaoting point (underlying) type
+			* which has to be passed as a template argument for the
+			* component function of a curve to allow autodifferentiation.
+			*/
+			dg::math::Function<T,T> Y_;
+
+			/**
+			* @brief X component function.
+			*
+			* @tparam T The library has defined a type `dg::param<U>`
+			* for U a flaoting point (underlying) type
+			* which has to be passed as a template argument for the
+			* component function of a curve to allow autodifferentiation.
+			*/
+			dg::math::Function<T,T> Z_;
+			
+			//Derivative util method 
+			template<int Order, typename V,
+				std::enable_if_t<std::is_floating_point_v<V>, std::nullptr_t> = nullptr >
+			dg::vector::Vector<V> derivative_(V var) const
+			{
+				dg::vector::Vector<V> componentwiseDerivative(
+					X_.derivative<Order>(var),
+					Y_.derivative<Order>(var),
+					Z_.derivative<Order>(var)
+				);
+
+				return componentwiseDerivative;
 			}
 
 			//We hide the constructor 
