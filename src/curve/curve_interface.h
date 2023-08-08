@@ -17,6 +17,7 @@
 #include "../utils/real_function.h"
 #include "../vector/vector.h"
 #include <type_traits>
+#include <iostream>
 
 namespace dg {
 
