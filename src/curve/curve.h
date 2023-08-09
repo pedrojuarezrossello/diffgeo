@@ -30,7 +30,7 @@ namespace dg {
 		* @headerfile curve.h "src/curve/curve.h"
 		* 
 		* @tparam T The library has defined a type `dg::param<U>` 
-		* for U a flaoting point (underlying) type
+		* for U a floating point (underlying) type
 		* which has to be passed as a template argument for the 
 		* component function of a curve to allow autodifferentiation.
 		*/

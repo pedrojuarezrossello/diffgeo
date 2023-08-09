@@ -1,4 +1,4 @@
-/** @file curve_interface.h
+ /** @file curve_interface.h
  *	@ingroup Curves
  *  @brief Interface class for curves.
  *
@@ -28,6 +28,7 @@ namespace dg {
 
 		/**
 		* @headerfile curve_interface.h "src/curve/curve_interface.h"
+		* 
 		*/
 		template<typename CurveImpl, typename T>
 		class CurveInterface
@@ -158,7 +159,6 @@ namespace dg {
 			*
 			* @tparam Order Order (int) of the derivative.
 			* @tparam V Floating point type of the return Vector.
-			* @param var Floating point value at which we evaluate the curve.
 			* 
 			* @return `std::function` containing the derivative function
 			*/

@@ -1,3 +1,12 @@
+/**
+* @file real_function.h
+* @ingroup Maths
+* @brief Real function in one or more variables.
+* 
+* @author Pedro Juarez Rossello (pedrojuarezrossello)
+* @bug No known bugs.
+*/
+
 #ifndef DG_REAL_FUNCTION_H
 #define DG_REAL_FUNCTION_H
 #include <boost/math/differentiation/autodiff.hpp>
@@ -8,13 +17,24 @@ namespace dg {
 
 	namespace math {
 
+		/**
+		* @headerfile real_function.h "src/utils/real_function.h"
+		* 
+		* @details The Function class plays a pivotal role
+		* in the library as it allows us to very accurately differentiate
+		* functions in one or more variables using the autodifferentiation 
+		* library in Boost.Math. The price to pay is a slightly awkward syntax.
+		* 
+		*/
 		template<typename _Ret, typename... Components>
 		class Function
 		{
 			using Funct = auto (Components...) -> _Ret;
 
+			//The underlying function is std::function
 			std::function<Funct> underlying_function;
 		
+			//Helper method to single-variable derivatives
 			template<int Order1, typename U>
 			auto find_derivatives_helper_(U value) const
 			{
@@ -23,6 +43,7 @@ namespace dg {
 				return derivatives;
 			}
 
+			//Helper method to find partial derivatives
 			template<int Order1, int Order2, typename ... Us>
 			auto find_derivatives_helper_(Us ... values) const
 			{
@@ -34,9 +55,21 @@ namespace dg {
 				return derivatives;
 			}
 
+			//Derivative function util
+			template<int Order, typename U,
+				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
+			U derivative_(U var) const
+			{
+				auto derivatives = find_derivatives_helper_<Order>(var);
+				return derivatives.derivative(Order);
+			}
+
 		public:
 
-			Function() {}
+			/**
+			* @brief Default constructor
+			*/
+			Function() = default;
 
 			Function(std::function<Funct> func) : underlying_function(func) {}
 
@@ -51,14 +84,11 @@ namespace dg {
 				return underlying_function(var...).derivative(static_cast<int>(var-var)...);
 			}
 
-			template<int Order, typename U,
-				std::enable_if_t<std::is_floating_point_v<U>, std::nullptr_t> = nullptr >
+			template<int Order, typename U>
 			U derivative(U var) const
 			{
-				auto derivatives = find_derivatives_helper_<Order>(var);
-				return derivatives.derivative(Order);
+				return derivative_<Order, U>(var);
 			}
-
 
 			template<int Order, int Order2, typename... Us>
 			auto derivative(Us... var) const
